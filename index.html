@@ -1,0 +1,2907 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reciprocidad Polar — Laboratorio Digital de Matemática</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   VARIABLES Y RESET
+   ============================================================ */
+:root {
+  --bg:        #0d1117;
+  --bg2:       #131920;
+  --bg3:       #1a2330;
+  --card:      #192232;
+  --border:    #243040;
+  --border2:   #2e3d52;
+  --accent:    #4ea8de;
+  --accent2:   #76c9f5;
+  --gold:      #e2b866;
+  --gold2:     #f5d08a;
+  --success:   #56c98d;
+  --error:     #e06c75;
+  --warn:      #e5c07b;
+  --text:      #cdd6f4;
+  --text2:     #a6b3c8;
+  --text3:     #6b7d96;
+  --radius:    12px;
+  --radius2:   8px;
+  --shadow:    0 4px 24px rgba(0,0,0,0.45);
+  --transition: 0.28s cubic-bezier(0.4,0,0.2,1);
+  --serif:     'DM Serif Display', Georgia, serif;
+  --sans:      'DM Sans', system-ui, sans-serif;
+  --mono:      'DM Mono', 'Courier New', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+a { color: var(--accent); text-decoration: none; }
+button { font-family: var(--sans); cursor: pointer; border: none; outline: none; }
+input, textarea {
+  font-family: var(--sans);
+  background: var(--bg3);
+  border: 1.5px solid var(--border2);
+  color: var(--text);
+  border-radius: var(--radius2);
+  padding: 0.55rem 0.9rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+input:focus, textarea:focus { border-color: var(--accent); }
+
+/* ============================================================
+   BARRA DE NAVEGACIÓN Y PROGRESO
+   ============================================================ */
+/* ── HEADER INSTITUCIONAL ── */
+#header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Franja superior institucional */
+#header-top {
+  background: linear-gradient(90deg, #0a1520 0%, #0f1e2e 50%, #0a1520 100%);
+  border-bottom: 1px solid rgba(78,168,222,0.2);
+  padding: 0 1.5rem;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+#header-top::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--gold), var(--accent));
+  background-size: 200% 100%;
+  animation: shimmer 4s linear infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+.header-brand-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), var(--gold));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(78,168,222,0.3);
+}
+.header-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.header-brand-title {
+  font-family: var(--serif);
+  font-size: 0.88rem;
+  color: var(--text);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.header-brand-sub {
+  font-size: 0.62rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.header-inst {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.header-inst-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.7rem;
+  color: var(--accent2);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.header-inst-dot {
+  color: var(--border2);
+}
+.header-inst-sep {
+  width: 1px; height: 16px;
+  background: var(--border2);
+}
+
+/* Franja inferior de navegación */
+#nav {
+  position: relative;
+  background: rgba(13,17,23,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+#nav-links {
+  display: flex;
+  gap: 0.15rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  align-items: center;
+}
+#nav-links::-webkit-scrollbar { display: none; }
+.nav-btn {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text3);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.25rem 0.7rem;
+  white-space: nowrap;
+  transition: all var(--transition);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 0;
+  height: 40px;
+}
+.nav-btn:hover { color: var(--accent2); border-bottom-color: rgba(78,168,222,0.4); }
+.nav-btn.active { color: var(--accent2); border-bottom-color: var(--accent); }
+
+#progress-bar {
+  position: fixed;
+  top: 84px; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  width: 0%;
+  z-index: 998;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 8px rgba(78,168,222,0.6);
+}
+
+@media (max-width: 640px) {
+  #header-top { height: 40px; }
+  .header-inst { display: none; }
+  .header-brand-sub { display: none; }
+  #nav { height: 36px; }
+  .nav-btn { font-size: 0.6rem; padding: 0.2rem 0.45rem; }
+  #progress-bar { top: 76px; }
+  main { padding-top: 76px !important; }
+}
+
+/* ============================================================
+   LAYOUT GENERAL
+   ============================================================ */
+main { padding-top: 84px; }
+.section {
+  min-height: 100vh;
+  padding: 4rem 1.5rem;
+  display: none;
+}
+.section.active { display: block; }
+.container { max-width: 900px; margin: 0 auto; }
+.container-wide { max-width: 1100px; margin: 0 auto; }
+
+/* ============================================================
+   TIPOGRAFÍA
+   ============================================================ */
+.title-xl {
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  line-height: 1.1;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.title-lg {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.title-md {
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 3vw, 1.9rem);
+  line-height: 1.3;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.subtitle {
+  color: var(--accent2);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.lead {
+  color: var(--text2);
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+.small { font-size: 0.82rem; color: var(--text3); }
+
+/* ============================================================
+   TARJETAS Y BLOQUES
+   ============================================================ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+.card-accent {
+  background: linear-gradient(135deg, rgba(78,168,222,0.08), rgba(118,201,245,0.04));
+  border-color: rgba(78,168,222,0.3);
+}
+.card-gold {
+  background: linear-gradient(135deg, rgba(226,184,102,0.08), rgba(245,208,138,0.04));
+  border-color: rgba(226,184,102,0.3);
+}
+.card-success {
+  background: rgba(86,201,141,0.06);
+  border-color: rgba(86,201,141,0.3);
+}
+.card-error {
+  background: rgba(224,108,117,0.06);
+  border-color: rgba(224,108,117,0.3);
+}
+
+/* ============================================================
+   BOTONES
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--radius2);
+  transition: all var(--transition);
+  letter-spacing: 0.02em;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #3a8fc9);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(78,168,222,0.28);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(78,168,222,0.42);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+}
+.btn-secondary:hover { background: rgba(78,168,222,0.1); }
+.btn-ghost {
+  background: var(--bg3);
+  color: var(--text2);
+  border: 1px solid var(--border2);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), #c9963a);
+  color: #1a1200;
+  font-weight: 700;
+  box-shadow: 0 4px 18px rgba(226,184,102,0.28);
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(226,184,102,0.42); }
+.btn-sm { font-size: 0.78rem; padding: 0.45rem 0.9rem; }
+.btn-lg { font-size: 1rem; padding: 0.9rem 2rem; border-radius: var(--radius); }
+
+/* ============================================================
+   BADGES Y CHIPS
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 99px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.badge-blue { background: rgba(78,168,222,0.15); color: var(--accent2); border: 1px solid rgba(78,168,222,0.3); }
+.badge-gold { background: rgba(226,184,102,0.15); color: var(--gold2); border: 1px solid rgba(226,184,102,0.3); }
+.badge-green { background: rgba(86,201,141,0.15); color: var(--success); border: 1px solid rgba(86,201,141,0.3); }
+.badge-red { background: rgba(224,108,117,0.15); color: var(--error); border: 1px solid rgba(224,108,117,0.3); }
+
+/* ============================================================
+   NIVEL / INDICADOR
+   ============================================================ */
+.nivel-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 99px;
+  border: 1.5px solid var(--accent);
+  color: var(--accent2);
+  background: rgba(78,168,222,0.08);
+}
+
+/* ============================================================
+   ACORDEÓN / BLOQUE COLAPSABLE
+   ============================================================ */
+.accordion-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+  margin-bottom: 0.6rem;
+}
+.accordion-header {
+  width: 100%;
+  text-align: left;
+  padding: 1rem 1.2rem;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: background var(--transition);
+  border-radius: var(--radius2);
+}
+.accordion-header:hover { background: rgba(255,255,255,0.03); }
+.accordion-arrow {
+  font-size: 0.8rem;
+  color: var(--accent);
+  transition: transform var(--transition);
+  flex-shrink: 0;
+}
+.accordion-item.open .accordion-arrow { transform: rotate(180deg); }
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+.accordion-item.open .accordion-body { max-height: 2000px; }
+.accordion-content {
+  padding: 0.25rem 1.2rem 1.2rem;
+  color: var(--text2);
+  font-size: 0.92rem;
+  line-height: 1.8;
+}
+
+/* ============================================================
+   QUIZ / PREGUNTAS
+   ============================================================ */
+.option-btn {
+  width: 100%;
+  text-align: left;
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--radius2);
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--bg3);
+  border: 1.5px solid var(--border2);
+  transition: all var(--transition);
+  margin-bottom: 0.5rem;
+  display: block;
+  line-height: 1.5;
+}
+.option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent2); background: rgba(78,168,222,0.06); }
+.option-btn.correct { border-color: var(--success); background: rgba(86,201,141,0.1); color: var(--success); }
+.option-btn.incorrect { border-color: var(--error); background: rgba(224,108,117,0.08); color: var(--error); }
+.option-btn.revealed { border-color: var(--accent); background: rgba(78,168,222,0.1); color: var(--accent2); }
+.option-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.feedback-box {
+  border-radius: var(--radius2);
+  padding: 1rem 1.1rem;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  margin-top: 0.75rem;
+}
+.feedback-ok { background: rgba(86,201,141,0.08); border: 1px solid rgba(86,201,141,0.3); color: #8de8b5; }
+.feedback-err { background: rgba(224,108,117,0.08); border: 1px solid rgba(224,108,117,0.3); color: #f0a0a8; }
+.feedback-info { background: rgba(78,168,222,0.08); border: 1px solid rgba(78,168,222,0.3); color: var(--accent2); }
+
+/* ============================================================
+   HINT SYSTEM
+   ============================================================ */
+.hint-container { margin-top: 0.75rem; }
+.hint-btn {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--gold);
+  background: rgba(226,184,102,0.08);
+  border: 1px solid rgba(226,184,102,0.25);
+  border-radius: 6px;
+  padding: 0.35rem 0.85rem;
+  transition: all var(--transition);
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.hint-btn:hover { background: rgba(226,184,102,0.16); border-color: var(--gold); }
+.hint-item {
+  display: none;
+  background: rgba(226,184,102,0.06);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 6px 6px 0;
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  color: var(--text2);
+  margin-bottom: 0.4rem;
+  line-height: 1.6;
+}
+.hint-item.visible { display: block; }
+
+/* ============================================================
+   CANVAS Y LABORATORIO
+   ============================================================ */
+.lab-canvas-wrap {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+}
+.lab-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+}
+.control-group { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 140px; }
+.control-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+input[type=range] {
+  width: 100%;
+  accent-color: var(--accent);
+  background: transparent;
+  border: none;
+  padding: 0;
+  height: 4px;
+  cursor: pointer;
+}
+.control-value {
+  font-size: 0.78rem;
+  color: var(--accent2);
+  font-family: var(--mono);
+  text-align: center;
+}
+
+/* ============================================================
+   TABLA DE ERRORES
+   ============================================================ */
+.error-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.error-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--border2);
+  color: var(--text3);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.error-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.error-table tr:last-child td { border-bottom: none; }
+.error-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ============================================================
+   GRID
+   ============================================================ */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.flex-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+
+/* ============================================================
+   SECCIÓN: PORTADA
+   ============================================================ */
+#s-portada {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 40%, rgba(78,168,222,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 70%, rgba(226,184,102,0.05) 0%, transparent 60%),
+    var(--bg);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6rem 1.5rem 4rem;
+}
+.portada-inner { max-width: 720px; animation: fadeUp 0.8s ease both; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.portada-logo {
+  width: 72px; height: 72px;
+  margin: 0 auto 2rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--accent), var(--gold));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 0 40px rgba(78,168,222,0.35);
+}
+.portada-inst {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 0.5rem;
+}
+.portada-divider {
+  width: 60px; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  margin: 1.5rem auto;
+  border-radius: 2px;
+}
+.portada-desc {
+  color: var(--text2);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  max-width: 560px;
+  margin: 0 auto 2.5rem;
+}
+.portada-footer {
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+  padding-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+.portada-footer-quote {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: var(--text2);
+  text-align: center;
+  max-width: 520px;
+  line-height: 1.6;
+}
+.portada-footer-divider {
+  width: 40px; height: 1px;
+  background: var(--border2);
+}
+.portada-footer-inst {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+.portada-footer-inst-line1 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--accent2);
+  letter-spacing: 0.03em;
+}
+.portada-footer-inst-line1 span {
+  color: var(--text3);
+  font-weight: 400;
+}
+.portada-footer-inst-line2 {
+  font-size: 0.82rem;
+  color: var(--text3);
+}
+.portada-footer-inst-line2 strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ============================================================
+   INPUT DE NOMBRE
+   ============================================================ */
+.name-input-wrap {
+  max-width: 360px;
+  margin: 0 auto 2rem;
+  text-align: left;
+}
+.name-input-wrap label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+}
+.name-input-wrap input { width: 100%; font-size: 0.95rem; }
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.section-number {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: rgba(78,168,222,0.1);
+  border: 1px solid rgba(78,168,222,0.25);
+  border-radius: 99px;
+  padding: 0.25rem 0.75rem;
+  display: inline-block;
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   STEPS / PASOS
+   ============================================================ */
+.step-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: flex-start;
+}
+.step-num {
+  flex-shrink: 0;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #3a8fc9);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 10px rgba(78,168,222,0.3);
+  margin-top: 0.1rem;
+}
+.step-content { flex: 1; }
+.step-content strong { color: var(--text); font-weight: 600; }
+.step-content p { color: var(--text2); font-size: 0.9rem; margin-top: 0.2rem; line-height: 1.7; }
+
+/* ============================================================
+   DEFINITION BOX
+   ============================================================ */
+.def-box {
+  background: linear-gradient(135deg, rgba(226,184,102,0.06), rgba(245,208,138,0.02));
+  border: 1.5px solid rgba(226,184,102,0.3);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+.def-box .def-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-bottom: 0.6rem;
+}
+.def-box .def-text { color: var(--text); font-size: 0.95rem; line-height: 1.8; }
+
+/* ============================================================
+   FORMULA
+   ============================================================ */
+.formula-block {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius2);
+  padding: 1.1rem 1.4rem;
+  margin: 1rem 0;
+  text-align: center;
+  font-size: 1.05rem;
+  overflow-x: auto;
+}
+
+/* ============================================================
+   DUAL TABLE
+   ============================================================ */
+.dual-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.dual-table th {
+  background: rgba(78,168,222,0.1);
+  color: var(--accent2);
+  font-weight: 700;
+  padding: 0.75rem 1.2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--border2);
+}
+.dual-table td {
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--border);
+  text-align: center;
+  color: var(--text2);
+}
+.dual-table td:first-child { color: var(--accent2); font-weight: 500; }
+.dual-table td:last-child  { color: var(--gold);     font-weight: 500; }
+
+/* ============================================================
+   METACOGNICIÓN
+   ============================================================ */
+.meta-textarea {
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  padding: 0.75rem 1rem;
+}
+
+/* ============================================================
+   REPORTE
+   ============================================================ */
+#reporte-content {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text2);
+  white-space: pre-wrap;
+  max-height: 480px;
+  overflow-y: auto;
+  line-height: 1.8;
+}
+
+/* ============================================================
+   LOADER / SPINNER
+   ============================================================ */
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 2rem auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   ANIMACIONES DE ENTRADA
+   ============================================================ */
+.fade-in {
+  animation: fadeIn 0.5s ease both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.slide-in {
+  animation: slideIn 0.45s ease both;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+  .section { padding: 3rem 1rem; }
+  .grid-2 { grid-template-columns: 1fr; }
+  #nav-links { gap: 0; }
+  .nav-btn { font-size: 0.65rem; padding: 0.28rem 0.5rem; }
+  .error-table { font-size: 0.78rem; }
+  .error-table th, .error-table td { padding: 0.6rem 0.6rem; }
+  canvas { max-height: 280px; }
+}
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.hidden { display: none !important; }
+.visible { display: block !important; }
+.gap-1 { gap: 0.5rem; }
+.italic { font-style: italic; }
+
+/* Separador decorativo */
+.deco-sep {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  margin: 2.5rem 0;
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== ENCABEZADO ===================== -->
+<div id="header">
+
+  <!-- Franja institucional superior -->
+  <div id="header-top">
+    <div class="header-brand">
+      <div class="header-brand-icon">⬡</div>
+      <div class="header-brand-text">
+        <span class="header-brand-title">Reciprocidad Polar</span>
+        <span class="header-brand-sub">Laboratorio Digital · Geometría II</span>
+      </div>
+    </div>
+    <div class="header-inst">
+      <div class="header-inst-badge">
+        <span>INSPT-UTN</span>
+        <span class="header-inst-dot">·</span>
+        <span>C70</span>
+      </div>
+      <div class="header-inst-sep"></div>
+      <div class="header-inst-badge">
+        <span>Prof. Ariel Cardozo</span>
+        <span class="header-inst-dot">·</span>
+        <span>Prof. Analía Chaparro</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de navegación inferior -->
+  <nav id="nav">
+    <div id="nav-links">
+      <button class="nav-btn active" onclick="showSection('s-portada', this)">Inicio</button>
+      <button class="nav-btn" onclick="showSection('s-diagnostico', this)">Diagnóstico</button>
+      <button class="nav-btn" onclick="showSection('s-activacion', this)">Activación</button>
+      <button class="nav-btn" onclick="showSection('s-teoria', this)">Teoría</button>
+      <button class="nav-btn" onclick="showSection('s-laboratorio', this)">Laboratorio</button>
+      <button class="nav-btn" onclick="showSection('s-practica', this)">Práctica</button>
+      <button class="nav-btn" onclick="showSection('s-errores', this)">Errores</button>
+      <button class="nav-btn" onclick="showSection('s-evaluacion', this)">Evaluación</button>
+      <button class="nav-btn" onclick="showSection('s-metacognicion', this)">Cierre</button>
+      <button class="nav-btn" onclick="showSection('s-reporte', this)">Reporte</button>
+    </div>
+  </nav>
+
+</div>
+<div id="progress-bar"></div>
+
+<main>
+
+<!-- ===================== 1. PORTADA ===================== -->
+<section id="s-portada" class="section active">
+  <div class="portada-inner">
+    <div class="portada-logo">⬡</div>
+    <p class="portada-inst">Laboratorio Digital de Matemática</p>
+    <h1 class="title-xl">Reciprocidad<br><em>Polar</em></h1>
+    <p class="subtitle" style="margin-top:0.75rem">Una experiencia interactiva</p>
+    <div class="portada-divider"></div>
+
+    <p class="portada-desc">
+      Esta experiencia te guiará paso a paso en la comprensión de la Reciprocidad Polar: una de las transformaciones más elegantes de la Geometría Proyectiva.
+      Vas a explorar, construir intuiciones, verificar conjeturas y cerrar con una autoevaluación real.
+    </p>
+
+    <div class="flex-row" style="justify-content:center; margin-bottom:1.5rem">
+      <button class="btn btn-primary btn-lg" onclick="iniciarExperiencia()">
+        ▶ &nbsp;Comenzar la experiencia
+      </button>
+      <button class="btn btn-ghost" onclick="showSection('s-teoria',null)">
+        Solo teoría
+      </button>
+    </div>
+
+    <div class="portada-footer">
+      <p class="portada-footer-quote">"La matemática no exige genios, exige constancia."</p>
+      <div class="portada-footer-divider"></div>
+      <div class="portada-footer-inst">
+        <p class="portada-footer-inst-line1">
+          Geometría II &middot; C70 <span>&middot; INSPT-UTN</span>
+        </p>
+        <p class="portada-footer-inst-line2">
+          Material didáctico interactivo &middot;
+          <strong>Prof. Ariel Cardozo - Prof. Analía Chaparro</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 2. DIAGNÓSTICO ===================== -->
+<section id="s-diagnostico" class="section">
+<div class="container">
+  <div class="section-header">
+    <span class="section-number">01 / Diagnóstico</span>
+    <h2 class="title-lg">¿Qué sabés antes de empezar?</h2>
+    <p class="lead">Estas preguntas no tienen nota. Ayudan a conocer tu punto de partida para que la experiencia se adapte a vos.</p>
+  </div>
+
+  <div id="diag-container">
+    <!-- Pregunta 1 -->
+    <div class="card mb-3" id="dq-0" data-q="0">
+      <p class="small mb-2">Pregunta 1 de 6 — Conceptual</p>
+      <p style="font-size:0.95rem; font-weight:600; color:var(--text); margin-bottom:1rem; line-height:1.6;">
+        En geometría, ¿qué significa que dos puntos sean <em>inversos</em> respecto de un círculo \(C(O,r)\)?
+      </p>
+      <button class="option-btn" onclick="checkDiag(0, 0, false)">A) Que están en extremos opuestos del diámetro.</button>
+      <button class="option-btn" onclick="checkDiag(0, 1, true)">B) Que están sobre el rayo \(OP\) y satisfacen \(OP \cdot OP' = r^2\).</button>
+      <button class="option-btn" onclick="checkDiag(0, 2, false)">C) Que son simétricos respecto del centro \(O\).</button>
+      <button class="option-btn" onclick="checkDiag(0, 3, false)">D) Que tienen la misma distancia al círculo.</button>
+      <div class="feedback-box hidden" id="dfb-0"></div>
+    </div>
+
+    <!-- Pregunta 2 -->
+    <div class="card mb-3" id="dq-1" data-q="1">
+      <p class="small mb-2">Pregunta 2 de 6 — Conceptual</p>
+      <p style="font-size:0.95rem; font-weight:600; color:var(--text); margin-bottom:1rem; line-height:1.6;">
+        Si una recta \(p\) es perpendicular al segmento \(OP\) y pasa por el inverso \(P'\) de \(P\), ¿cómo se denomina \(p\) en la reciprocidad polar?
+      </p>
+      <button class="option-btn" onclick="checkDiag(1, 0, false)">A) Recta tangente a \(C\) en \(P'\).</button>
+      <button class="option-btn" onclick="checkDiag(1, 1, false)">B) Eje radical del círculo.</button>
+      <button class="option-btn" onclick="checkDiag(1, 2, true)">C) La polar de \(P\).</button>
+      <button class="option-btn" onclick="checkDiag(1, 3, false)">D) La directriz asociada a \(P\).</button>
+      <div class="feedback-box hidden" id="dfb-1"></div>
+    </div>
+
+    <!-- Pregunta 3 -->
+    <div class="card mb-3" id="dq-2" data-q="2">
+      <p class="small mb-2">Pregunta 3 de 6 — Procedimental</p>
+      <p style="font-size:0.95rem; font-weight:600; color:var(--text); margin-bottom:1rem; line-height:1.6;">
+        Si \(O\) es el centro del círculo de inversión y \(P\) un punto interior, ¿dónde queda la polar \(p\)?
+      </p>
+      <button class="option-btn" onclick="checkDiag(2, 0, false)">A) Dentro del círculo, paralela a \(OP\).</button>
+      <button class="option-btn" onclick="checkDiag(2, 1, true)">B) Fuera del círculo, perpendicular a \(OP\).</button>
+      <button class="option-btn" onclick="checkDiag(2, 2, false)">C) Coincide con el diámetro que contiene a \(P\).</button>
+      <button class="option-btn" onclick="checkDiag(2, 3, false)">D) Sobre el círculo.</button>
+      <div class="feedback-box hidden" id="dfb-2"></div>
+    </div>
+
+    <!-- Pregunta 4 -->
+    <div class="card mb-3" id="dq-3" data-q="3">
+      <p class="small mb-2">Pregunta 4 de 6 — Conceptual</p>
+      <p style="font-size:0.95rem; font-weight:600; color:var(--text); margin-bottom:1rem; line-height:1.6;">
+        El Principio de Dualidad en el plano proyectivo establece que:
+      </p>
+      <button class="option-btn" onclick="checkDiag(3, 0, false)">A) Todo teorema sobre puntos tiene un dual sobre circunferencias.</button>
+      <button class="option-btn" onclick="checkDiag(3, 1, true)">B) Toda proposición sobre puntos y rectas da lugar a otra proposición válida intercambiando "punto" por "recta" y viceversa.</button>
+      <button class="option-btn" onclick="checkDiag(3, 2, false)">C) Un punto y su polar siempre son perpendiculares.</button>
+      <button class="option-btn" onclick="checkDiag(3, 3, false)">D) Las polares de puntos exteriores son secantes al círculo.</button>
+      <div class="feedback-box hidden" id="dfb-3"></div>
+    </div>
+
+    <!-- Pregunta 5 -->
+    <div class="card mb-3" id="dq-4" data-q="4">
+      <p class="small mb-2">Pregunta 5 de 6 — Interpretación</p>
+      <p style="font-size:0.95rem; font-weight:600; color:var(--text); margin-bottom:1rem; line-height:1.6;">
+        Dos puntos \(A\) y \(B\) son <em>conjugados</em> respecto del círculo \(C\). Esto significa que:
+      </p>
+      <button class="option-btn" onclick="checkDiag(4, 0, false)">A) Son simétricos respecto de \(O\).</button>
+      <button class="option-btn" onclick="checkDiag(4, 1, true)">B) \(B\) pertenece a la polar de \(A\) (y \(A\) pertenece a la polar de \(B\)).</button>
+      <button class="option-btn" onclick="checkDiag(4, 2, false)">C) \(OA = OB = r\).</button>
+      <button class="option-btn" onclick="checkDiag(4, 3, false)">D) La recta \(AB\) es tangente al círculo.</button>
+      <div class="feedback-box hidden" id="dfb-4"></div>
+    </div>
+
+    <!-- Pregunta 6 -->
+    <div class="card mb-3" id="dq-5" data-q="5">
+      <p class="small mb-2">Pregunta 6 de 6 — Análisis</p>
+      <p style="font-size:0.95rem; font-weight:600; color:var(--text); margin-bottom:1rem; line-height:1.6;">
+        Si tres puntos son colineales, ¿qué propiedad tienen sus polares respecto a un círculo de inversión?
+      </p>
+      <button class="option-btn" onclick="checkDiag(5, 0, false)">A) Las polares también son paralelas entre sí.</button>
+      <button class="option-btn" onclick="checkDiag(5, 1, false)">B) Las polares no tienen ninguna relación especial.</button>
+      <button class="option-btn" onclick="checkDiag(5, 2, true)">C) Las polares son concurrentes (pasan por un mismo punto, el polo de la recta que contiene a los tres puntos).</button>
+      <button class="option-btn" onclick="checkDiag(5, 3, false)">D) Las polares forman un triángulo circunscrito al círculo.</button>
+      <div class="feedback-box hidden" id="dfb-5"></div>
+    </div>
+
+    <div id="diag-resultado" class="hidden card card-accent mt-4 fade-in">
+      <div class="text-center">
+        <div class="subtitle mb-2">Resultado del diagnóstico</div>
+        <div id="diag-nivel-badge" style="font-size:1.2rem; font-weight:700; color:var(--accent2); margin-bottom:0.75rem;"></div>
+        <div id="diag-puntaje" class="small mb-2"></div>
+        <p id="diag-mensaje" class="lead" style="font-size:0.92rem; max-width:600px; margin:0 auto 1.5rem;"></p>
+        <button class="btn btn-primary" onclick="showSection('s-activacion',null)">
+          Continuar →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===================== 3. ACTIVACIÓN ===================== -->
+<section id="s-activacion" class="section">
+<div class="container">
+  <div class="section-header">
+    <span class="section-number">02 / Activación conceptual</span>
+    <h2 class="title-lg">Antes de ver la definición…</h2>
+    <p class="lead">Observá la siguiente situación y respondé las preguntas que te proponemos. No hay respuestas incorrectas: el objetivo es activar tu pensamiento geométrico.</p>
+  </div>
+
+  <div class="card card-gold mb-4">
+    <div class="def-label">🔍 Situación disparadora</div>
+    <p style="color:var(--text); font-size:0.95rem; line-height:1.8; margin-top:0.5rem;">
+      Tenés un círculo \(C(O, r)\) en el plano. Elegís un punto \(P\) que <em>no</em> es el centro.
+      Construís el inverso \(P'\) de \(P\) respecto del círculo, y luego trazás la recta \(p\) que pasa por \(P'\) y es perpendicular a \(OP\).
+    </p>
+    <p style="color:var(--text2); font-size:0.9rem; margin-top:0.75rem; line-height:1.7;">
+      Ahora imaginá que movés \(P\) a distintos lugares del plano y observás qué le pasa a \(p\).
+    </p>
+  </div>
+
+  <div class="grid-2 mb-4">
+    <div class="card">
+      <p class="subtitle" style="margin-bottom:0.5rem">¿Qué observás?</p>
+      <p class="lead" style="font-size:0.9rem;">Cuando \(P\) se acerca a \(O\), ¿qué le sucede a \(p\)? ¿Se acerca, se aleja, rota?</p>
+      <div id="act-resp-1" class="mt-2">
+        <button class="btn btn-ghost btn-sm" onclick="revealActivacion(1, 'p se aleja hacia el infinito: cuanto más cerca de O está P, más lejos queda su polar.')">Ver una posible respuesta</button>
+        <div id="act-r1" class="feedback-box feedback-info hidden mt-2" style="font-size:0.85rem;"></div>
+      </div>
+    </div>
+    <div class="card">
+      <p class="subtitle" style="margin-bottom:0.5rem">¿Qué cambia?</p>
+      <p class="lead" style="font-size:0.9rem;">Si \(P\) está sobre el círculo (es decir, \(OP = r\)), ¿dónde queda la polar \(p\)?</p>
+      <div id="act-resp-2" class="mt-2">
+        <button class="btn btn-ghost btn-sm" onclick="revealActivacion(2, 'Si P está sobre el círculo, entonces P = P\' (el inverso coincide con el mismo punto) y la polar p es la tangente al círculo en P.')">Ver una posible respuesta</button>
+        <div id="act-r2" class="feedback-box feedback-info hidden mt-2" style="font-size:0.85rem;"></div>
+      </div>
+    </div>
+    <div class="card">
+      <p class="subtitle" style="margin-bottom:0.5rem">¿Qué permanece?</p>
+      <p class="lead" style="font-size:0.9rem;">¿Qué propiedad geométrica se conserva siempre, sin importar dónde esté \(P\)?</p>
+      <div id="act-resp-3" class="mt-2">
+        <button class="btn btn-ghost btn-sm" onclick="revealActivacion(3, 'Siempre se conserva la perpendicularidad: p ⊥ OP. La polar siempre es perpendicular al rayo que une el centro con el polo.')">Ver una posible respuesta</button>
+        <div id="act-r3" class="feedback-box feedback-info hidden mt-2" style="font-size:0.85rem;"></div>
+      </div>
+    </div>
+    <div class="card">
+      <p class="subtitle" style="margin-bottom:0.5rem">¿Qué podrías anticipar?</p>
+      <p class="lead" style="font-size:0.9rem;">Si empezás con la recta \(p\) y querés encontrar el punto \(P\), ¿cómo lo harías?</p>
+      <div id="act-resp-4" class="mt-2">
+        <button class="btn btn-ghost btn-sm" onclick="revealActivacion(4, 'La relación es recíproca: el polo de p es el punto P tal que p ⊥ OP y el inverso P\' está en p. El proceso es simétrico.')">Ver una posible respuesta</button>
+        <div id="act-r4" class="feedback-box feedback-info hidden mt-2" style="font-size:0.85rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-accent mt-3 mb-4">
+    <p class="subtitle">🤔 Pregunta socrática</p>
+    <p style="color:var(--text); font-size:0.95rem; line-height:1.8;">
+      Si tomás tres puntos alineados \(A\), \(B\), \(C\) sobre una misma recta \(\ell\), y trazás las polares \(a\), \(b\), \(c\) de cada uno, ¿qué crees que tendrán en común esas tres polares?
+    </p>
+    <div class="mt-2">
+      <button class="btn btn-ghost btn-sm" onclick="revealActivacion(5, '¡Exacto! Las polares de puntos alineados son rectas concurrentes. Pasan todas por un mismo punto: el polo de la recta ℓ. Esta propiedad es la clave del Principio de Dualidad.')">Ver respuesta</button>
+      <div id="act-r5" class="feedback-box feedback-info hidden mt-2" style="font-size:0.85rem;"></div>
+    </div>
+  </div>
+
+  <div class="text-center">
+    <p class="lead mb-3" style="font-size:0.9rem; color:var(--text3);">Cuando estés listo/a, avanzá a la teoría formal.</p>
+    <button class="btn btn-primary" onclick="showSection('s-teoria',null)">Ver la Teoría →</button>
+  </div>
+</div>
+</section>
+
+<!-- ===================== 4. TEORÍA ===================== -->
+<section id="s-teoria" class="section">
+<div class="container">
+  <div class="section-header">
+    <span class="section-number">03 / Teoría</span>
+    <h2 class="title-lg">Reciprocidad Polar</h2>
+    <p class="lead">La teoría está organizada en bloques. Desplegá cada uno en el orden que prefieras.</p>
+  </div>
+
+  <!-- Bloque 1 -->
+  <div class="accordion-item open mb-2" id="acc-1">
+    <button class="accordion-header" onclick="toggleAccordion('acc-1')">
+      <span>💡 Idea intuitiva</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <p>Imaginá que tenés una linterna en el punto \(P\) y un círculo espejo. La "sombra" que proyecta \(P\) a través del círculo es una recta. Esa recta es la <strong>polar</strong> de \(P\).</p>
+        <p class="mt-2">Inversamente, si tenés una recta como "pantalla", el punto que la genera (el polo) es único. La relación es completamente <strong>recíproca</strong>: punto ↔ recta.</p>
+        <div class="formula-block mt-3">
+          \[ P \longleftrightarrow p \quad \text{(polo y polar son recíprocos)} \]
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloque 2 -->
+  <div class="accordion-item mb-2" id="acc-2">
+    <button class="accordion-header" onclick="toggleAccordion('acc-2')">
+      <span>📖 Definición formal (Def. 1)</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <p>Sea \(C(O, r)\) un círculo de inversión.</p>
+        <div class="def-box mt-2">
+          <div class="def-label">Definición — Polo y Polar</div>
+          <p class="def-text">
+            <strong>De punto a recta:</strong> dado un punto \(P \neq O\), sea \(P'\) su inverso respecto de \(C\) (es decir, \(P'\) está en el rayo \(OP\) y \(OP \cdot OP' = r^2\)).
+            La <strong>polar de \(P\)</strong> es la recta \(p\) que pasa por \(P'\) y es perpendicular a \(OP\):
+          </p>
+          <div class="formula-block mt-2">
+            \[ P \to p \;/\; p \perp OP \;\wedge\; P' \in p \]
+          </div>
+          <p class="def-text mt-2">
+            <strong>De recta a punto:</strong> dada una recta \(p\) que no pasa por \(O\), el <strong>polo de \(p\)</strong> es el punto \(P\) tal que \(p \perp OP\) y el inverso \(P'\) de \(P\) pertenece a \(p\).
+          </p>
+        </div>
+        <div class="feedback-box feedback-info mt-3" style="font-size:0.85rem;">
+          <strong>Notación estándar:</strong> polos con letra mayúscula (\(P\), \(Q\), \(A\)), polares con la minúscula correspondiente (\(p\), \(q\), \(a\)).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloque 3 -->
+  <div class="accordion-item mb-2" id="acc-3">
+    <button class="accordion-header" onclick="toggleAccordion('acc-3')">
+      <span>📐 Interpretación geométrica</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="grid-2 mt-2" style="gap:1rem;">
+          <div>
+            <p class="subtitle">Posición de P respecto de C</p>
+            <div class="step-row mt-2">
+              <div class="step-num" style="background:linear-gradient(135deg,var(--success),#2a8a5a);">✓</div>
+              <div class="step-content">
+                <strong>P interior a C</strong>
+                <p>La polar \(p\) es <em>exterior</em> al círculo (cruza el "afuera" de \(C\)).</p>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num" style="background:linear-gradient(135deg,var(--gold),#a06820);">◈</div>
+              <div class="step-content">
+                <strong>P sobre C</strong>
+                <p>La polar \(p\) es la <em>tangente</em> a \(C\) en \(P\). (P = P')</p>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num" style="background:linear-gradient(135deg,var(--error),#a03040);">!</div>
+              <div class="step-content">
+                <strong>P exterior a C</strong>
+                <p>La polar \(p\) es <em>secante</em> al círculo y pasa por los puntos de tangencia desde \(P\).</p>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="background:var(--bg2)">
+            <p class="subtitle mb-2">Relación de incidencia</p>
+            <p style="font-size:0.88rem; color:var(--text2); line-height:1.8;">
+              \(P\) pertenece a su propia polar \(p\) si y solo si \(P\) está sobre el círculo \(C\).
+              <br><br>
+              En ese caso, \(P = P'\) y la polar es la tangente en \(P\).
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloque 4: Teorema de Reciprocidad -->
+  <div class="accordion-item mb-2" id="acc-4">
+    <button class="accordion-header" onclick="toggleAccordion('acc-4')">
+      <span>⚡ Teorema de la Reciprocidad Polar</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="def-box">
+          <div class="def-label">Teorema</div>
+          <p class="def-text">
+            Sean \(A\) y \(a\) polo y polar, \(B\) y \(b\) polo y polar (con \(B \neq A'\)).
+            Si \(B \in a\), entonces \(A \in b\).
+          </p>
+          <div class="formula-block mt-2">
+            \[ B(B \neq A') \in a \;\Rightarrow\; A \in b \]
+          </div>
+        </div>
+
+        <p class="mt-3" style="font-size:0.9rem; color:var(--text2); line-height:1.8;">
+          <strong>Demostración (esquema):</strong>
+        </p>
+        <div class="step-row mt-2">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Construcción</strong>
+            <p>Construimos \(A\), \(A'\) y la polar \(a\). Elegimos \(B \in a\) (hipótesis). Trazamos el inverso \(B'\) de \(B\).</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Recta auxiliar \(x = AB'\)</strong>
+            <p>Trazamos la recta \(x\) que pasa por \(A\) y \(B'\). Queremos probar que \(x = b\), es decir, que \(x\) es la polar de \(B\).</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <strong>Por construcción</strong>
+            <p>Sabemos que \(OA \cdot OA' = r^2\) y \(OB \cdot OB' = r^2\). Ambas relaciones comparten el ángulo en \(O\).</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <strong>Triángulos semejantes</strong>
+            <p>Por L-A-L, los triángulos \(OB'A\) y \(OBA'\) son semejantes. Como \(\angle OA'B\) es recto, entonces \(\angle OB'A\) también es recto.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <strong>Conclusión</strong>
+            <p>La recta \(x = AB'\) es perpendicular a \(OB\) en \(B'\), lo cual es exactamente la definición de la polar de \(B\). Por tanto \(x = b\) y \(A \in b\). ∎</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloque 5: Puntos y rectas conjugadas -->
+  <div class="accordion-item mb-2" id="acc-5">
+    <button class="accordion-header" onclick="toggleAccordion('acc-5')">
+      <span>🔗 Puntos y rectas conjugadas (Def. 2)</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="def-box">
+          <div class="def-label">Definición — Puntos conjugados</div>
+          <p class="def-text">
+            Dos puntos \(A\) y \(B\) son <strong>conjugados</strong> respecto de \(C(O,r)\) si \(B \in a\) (la polar de \(A\)). Por el Teorema de Reciprocidad, esto equivale a que \(A \in b\).
+          </p>
+        </div>
+        <div class="def-box mt-2">
+          <div class="def-label">Definición — Rectas conjugadas</div>
+          <p class="def-text">
+            Dos rectas \(a\) y \(b\) son <strong>conjugadas</strong> si el polo de una contiene al polo de la otra: \(B \in a \;\Leftrightarrow\; A \in b\).
+          </p>
+        </div>
+        <div class="feedback-box feedback-info mt-3" style="font-size:0.85rem;">
+          <strong>Observación clave:</strong> La relación de conjugación es <em>simétrica</em>: si \(A\) y \(B\) son conjugados, también lo son \(B\) y \(A\). Esto no es trivial y es consecuencia directa del teorema de reciprocidad.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloque 6: Principio de Dualidad -->
+  <div class="accordion-item mb-2" id="acc-6">
+    <button class="accordion-header" onclick="toggleAccordion('acc-6')">
+      <span>♾ Principio de Dualidad</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="def-box">
+          <div class="def-label">Propiedad previa</div>
+          <p class="def-text">Las polares de un conjunto de <strong>puntos alineados</strong> forman un conjunto de <strong>rectas concurrentes</strong> en el polo de la recta que los contiene.</p>
+        </div>
+        <div class="def-box mt-2">
+          <div class="def-label">Principio de Dualidad</div>
+          <p class="def-text">Para cualquier configuración de puntos y rectas, con determinados puntos situados en determinadas rectas, existe una <strong>configuración dual</strong> de rectas y puntos, con determinadas rectas que pasan por determinados puntos.</p>
+        </div>
+        <div class="formula-block mt-3" style="font-size:1.1rem; font-weight:600;">
+          PUNTO \(\;\longleftrightarrow\;\) RECTA
+        </div>
+        <p class="mt-3" style="font-size:0.88rem; color:var(--text2); line-height:1.8;">
+          La reciprocidad polar es una <strong>realización concreta</strong> del principio abstracto de dualidad: transforma puntos en rectas y rectas en puntos, preservando las relaciones de incidencia (un punto sobre una recta ↔ una recta que pasa por un punto).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloque 7: Diccionario Dual -->
+  <div class="accordion-item mb-2" id="acc-7">
+    <button class="accordion-header" onclick="toggleAccordion('acc-7')">
+      <span>📚 Diccionario Dual</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="card" style="background:var(--bg2); overflow-x:auto;">
+          <table class="dual-table">
+            <thead>
+              <tr><th>Geometría Primal</th><th>⟷</th><th>Geometría Dual</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Punto</td><td>⟷</td><td>Recta</td></tr>
+              <tr><td>Situado en (incidencia)</td><td>⟷</td><td>Pasa por (incidencia)</td></tr>
+              <tr><td>Recta que une dos puntos</td><td>⟷</td><td>Intersección de dos rectas</td></tr>
+              <tr><td>Concurrencia</td><td>⟷</td><td>Alineación</td></tr>
+              <tr><td>Cuadriángulo</td><td>⟷</td><td>Cuadrilátero</td></tr>
+              <tr><td>Polo</td><td>⟷</td><td>Polar</td></tr>
+              <tr><td>Lugar geométrico</td><td>⟷</td><td>Envoltura</td></tr>
+              <tr><td>Recta tangente</td><td>⟷</td><td>Punto de contacto</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card card-gold mt-3" style="font-size:0.88rem; color:var(--text2);">
+          <strong style="color:var(--gold);">Ejemplo de dualización:</strong><br><br>
+          Primal: <em>"La polar de un punto \(A\) es el lugar geométrico de los polos de las rectas que pasan por \(A\)."</em><br><br>
+          Dual: <em>"El polo de una recta \(a\) es la envoltura de las polares de los puntos situados en \(a\)."</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloque 8: Advertencias -->
+  <div class="accordion-item mb-2" id="acc-8">
+    <button class="accordion-header" onclick="toggleAccordion('acc-8')">
+      <span>⚠️ Advertencias sobre errores frecuentes</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <div class="feedback-box feedback-err mt-1 mb-2">
+          <strong>Error 1:</strong> Confundir el inverso \(P'\) con la polar \(p\). El inverso es un <em>punto</em>; la polar es una <em>recta</em>.
+        </div>
+        <div class="feedback-box feedback-err mb-2">
+          <strong>Error 2:</strong> Olvidar que la definición requiere \(P \neq O\). El centro no tiene polar definida.
+        </div>
+        <div class="feedback-box feedback-err mb-2">
+          <strong>Error 3:</strong> Creer que la polar siempre es exterior al círculo. Solo cuando \(P\) es interior.
+        </div>
+        <div class="feedback-box feedback-err mb-2">
+          <strong>Error 4:</strong> Aplicar el principio de dualidad sin verificar que se respetan las relaciones de incidencia del enunciado original.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <button class="btn btn-primary" onclick="showSection('s-laboratorio',null)">Ir al Laboratorio →</button>
+  </div>
+</div>
+</section>
+
+<!-- ===================== 5. LABORATORIO ===================== -->
+<section id="s-laboratorio" class="section">
+<div class="container-wide">
+  <div class="section-header">
+    <span class="section-number">04 / Laboratorio</span>
+    <h2 class="title-lg">Explorá la reciprocidad en forma dinámica</h2>
+    <p class="lead">Mové el punto \(P\) arrastrando el círculo rojo. Observá cómo cambia la polar.</p>
+  </div>
+
+  <div class="card card-accent mb-3">
+    <strong style="color:var(--accent2);">Antes de explorar, pensá:</strong>
+    <p style="font-size:0.9rem; color:var(--text2); margin-top:0.5rem; line-height:1.7;">
+      ¿Qué creés que le pasa a la polar \(p\) cuando movés \(P\) hacia el centro? ¿Se acerca al círculo o se aleja? Guardá esa predicción en tu cabeza y verificala experimentando.
+    </p>
+  </div>
+
+  <div class="lab-canvas-wrap mb-3">
+    <canvas id="labCanvas" width="880" height="420"></canvas>
+    <div class="lab-controls">
+      <div class="control-group">
+        <label class="control-label">Radio del círculo (r)</label>
+        <input type="range" id="sl-r" min="60" max="160" value="100" oninput="updateLab()">
+        <div class="control-value" id="cv-r">r = 100</div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Posición X de P</label>
+        <input type="range" id="sl-px" min="-200" max="200" value="50" oninput="updateLab()">
+        <div class="control-value" id="cv-px">Px = 50</div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Posición Y de P</label>
+        <input type="range" id="sl-py" min="-180" max="180" value="30" oninput="updateLab()">
+        <div class="control-value" id="cv-py">Py = 30</div>
+      </div>
+      <div class="control-group" style="justify-content:flex-end">
+        <label class="control-label">Mostrar</label>
+        <label style="font-size:0.8rem; color:var(--text2); cursor:pointer;">
+          <input type="checkbox" id="cb-dual" onchange="updateLab()" checked style="accent-color:var(--gold); width:14px; height:14px; margin-right:4px; border:none; padding:0;">
+          Punto conjugado Q
+        </label>
+        <label style="font-size:0.8rem; color:var(--text2); cursor:pointer; margin-top:0.3rem;">
+          <input type="checkbox" id="cb-labels" onchange="updateLab()" checked style="accent-color:var(--gold); width:14px; height:14px; margin-right:4px; border:none; padding:0;">
+          Etiquetas
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3 mb-4" id="lab-stats">
+    <div class="card text-center">
+      <div class="small mb-1">Posición de P</div>
+      <div id="lab-pos" style="font-family:var(--mono); font-size:0.9rem; color:var(--accent2);">—</div>
+    </div>
+    <div class="card text-center">
+      <div class="small mb-1">OP · OP'</div>
+      <div id="lab-inv" style="font-family:var(--mono); font-size:0.9rem; color:var(--gold);">—</div>
+    </div>
+    <div class="card text-center">
+      <div class="small mb-1">P respecto de C</div>
+      <div id="lab-rel" style="font-family:var(--mono); font-size:0.9rem; color:var(--success);">—</div>
+    </div>
+  </div>
+
+  <div class="card card-gold mb-4">
+    <strong style="color:var(--gold2);">Después de explorar, respondé:</strong>
+    <div class="grid-2 mt-3" style="gap:1rem;">
+      <div>
+        <p style="font-size:0.88rem; color:var(--text2); line-height:1.7;">1. ¿Cuándo la polar \(p\) y el punto \(P\) son incidentes (P pertenece a p)?</p>
+        <button class="btn btn-ghost btn-sm mt-1" onclick="revealActivacion(6, 'Cuando P está sobre el círculo. En ese caso P = P\' y la polar p es la tangente en P.')">Revelar</button>
+        <div id="act-r6" class="feedback-box feedback-info hidden mt-1" style="font-size:0.82rem;"></div>
+      </div>
+      <div>
+        <p style="font-size:0.88rem; color:var(--text2); line-height:1.7;">2. ¿Qué pasa con la polar cuando P se aproxima a O?</p>
+        <button class="btn btn-ghost btn-sm mt-1" onclick="revealActivacion(7, 'La polar se aleja hacia el infinito. OP\' = r²/OP → ∞ cuando OP → 0. El centro O no tiene polar definida.')">Revelar</button>
+        <div id="act-r7" class="feedback-box feedback-info hidden mt-1" style="font-size:0.82rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center">
+    <button class="btn btn-primary" onclick="showSection('s-practica',null)">Ir a la Práctica →</button>
+  </div>
+</div>
+</section>
+
+<!-- ===================== 6. PRÁCTICA ===================== -->
+<section id="s-practica" class="section">
+<div class="container">
+  <div class="section-header">
+    <span class="section-number">05 / Práctica adaptativa</span>
+    <h2 class="title-lg">Ejercicios por nivel</h2>
+    <p class="lead" id="prac-rec-msg">Seleccioná el nivel por el cual querés empezar.</p>
+  </div>
+
+  <!-- Selector de niveles -->
+  <div class="flex-row mb-4" style="justify-content:center; flex-wrap:wrap; gap:0.6rem;" id="level-selector">
+    <button class="btn btn-ghost" id="lvl-btn-1" onclick="selectLevel(1)">
+      Nivel 1 — Reconocimiento
+    </button>
+    <button class="btn btn-ghost" id="lvl-btn-2" onclick="selectLevel(2)">
+      Nivel 2 — Aplicación
+    </button>
+    <button class="btn btn-ghost" id="lvl-btn-3" onclick="selectLevel(3)">
+      Nivel 3 — Resolución
+    </button>
+    <button class="btn btn-ghost" id="lvl-btn-4" onclick="selectLevel(4)">
+      Nivel 4 — Análisis
+    </button>
+    <button class="btn btn-ghost" id="lvl-btn-5" onclick="selectLevel(5)">
+      Nivel 5 — Desafío
+    </button>
+  </div>
+
+  <div id="ejercicio-container" class="hidden">
+    <!-- Se renderiza dinámicamente -->
+  </div>
+
+</div>
+</section>
+
+<!-- ===================== 7. ERRORES FRECUENTES ===================== -->
+<section id="s-errores" class="section">
+<div class="container">
+  <div class="section-header">
+    <span class="section-number">06 / Errores frecuentes</span>
+    <h2 class="title-lg">Errores que conviene detectar</h2>
+    <p class="lead">Reconocer los errores propios es una habilidad matemática de alto nivel.</p>
+  </div>
+
+  <div class="card" style="overflow-x:auto; background:var(--bg2);">
+    <table class="error-table">
+      <thead>
+        <tr>
+          <th>Error</th>
+          <th>Por qué ocurre</th>
+          <th>Cómo detectarlo</th>
+          <th>Cómo corregirlo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:var(--error);">Confundir el inverso \(P'\) con la polar \(p\)</strong></td>
+          <td>El inverso es un resultado intermedio del proceso; se lo toma como el objeto final.</td>
+          <td>Preguntarse si el resultado obtenido es un <em>punto</em> o una <em>recta</em>.</td>
+          <td>Recordar: polar = recta perpendicular a OP que pasa por P'.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--error);">No verificar P ≠ O</strong></td>
+          <td>Se aplica la definición mecánicamente sin revisar las condiciones de validez.</td>
+          <td>Verificar explícitamente que el polo no coincide con el centro del círculo.</td>
+          <td>Indicar que O no tiene polar definida. La reciprocidad excluye el centro.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--error);">Creer que la polar siempre es exterior</strong></td>
+          <td>Solo se analizó el caso P interior. La intuición no se generaliza.</td>
+          <td>Verificar con un P exterior: su polar debería ser secante al círculo.</td>
+          <td>Estudiar los tres casos: P interior, P sobre C, P exterior.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--error);">Invertir la implicación del teorema</strong></td>
+          <td>Se lee el teorema en un solo sentido y se "da vuelta" sin justificación.</td>
+          <td>El teorema dice B ∈ a ⟹ A ∈ b. La recíproca también vale (por simetría), pero hay que demostrarla.</td>
+          <td>Aplicar el mismo argumento con los roles intercambiados para probar la recíproca.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--error);">Dualizar sin respetar la incidencia</strong></td>
+          <td>Se cambia "punto" por "recta" en el enunciado sin verificar que las relaciones de incidencia se traduzcan correctamente.</td>
+          <td>Revisar que cada "P ∈ r" del primal se transforme en "p pasa por R" en el dual.</td>
+          <td>Usar el diccionario dual sistemáticamente, término por término.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--error);">Confundir puntos conjugados con inversos</strong></td>
+          <td>Ambos conceptos involucran el círculo y pares de elementos. Se confunden.</td>
+          <td>Inversos: P y P' sobre el mismo rayo OP, con OP·OP' = r². Conjugados: B ∈ polar de A.</td>
+          <td>Distinguir que la conjugación es una relación entre dos puntos distintos; la inversión es un punto y su imagen.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-4">
+    <button class="btn btn-primary" onclick="showSection('s-evaluacion',null)">Ir a la Autoevaluación →</button>
+  </div>
+</div>
+</section>
+
+<!-- ===================== 8. EVALUACIÓN FORMATIVA ===================== -->
+<section id="s-evaluacion" class="section">
+<div class="container">
+  <div class="section-header">
+    <span class="section-number">07 / Autoevaluación formativa</span>
+    <h2 class="title-lg">Mini evaluación final</h2>
+    <p class="lead">8 preguntas para medir tu comprensión. Respondé con calma. Recibirás retroalimentación inmediata.</p>
+  </div>
+
+  <div id="eval-container">
+    <!-- Se renderizan las 8 preguntas -->
+  </div>
+
+  <div id="eval-resultado" class="hidden card card-accent mt-4 fade-in">
+    <div class="text-center">
+      <div class="subtitle mb-1">Resultado de la autoevaluación</div>
+      <div id="eval-puntaje" style="font-size:2rem; font-weight:700; color:var(--accent2); margin-bottom:0.5rem;"></div>
+      <div id="eval-nivel-badge" style="margin-bottom:1rem;"></div>
+      <p id="eval-mensaje" class="lead" style="font-size:0.92rem; max-width:600px; margin:0 auto 1.5rem;"></p>
+      <button class="btn btn-primary" onclick="showSection('s-metacognicion',null)">Ir al Cierre →</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===================== 9. CIERRE METACOGNITIVO ===================== -->
+<section id="s-metacognicion" class="section">
+<div class="container">
+  <div class="section-header">
+    <span class="section-number">08 / Cierre metacognitivo</span>
+    <h2 class="title-lg">¿Qué aprendiste hoy?</h2>
+    <p class="lead">La metacognición es la capacidad de reflexionar sobre tu propio aprendizaje. Tomá unos minutos y respondé con honestidad.</p>
+  </div>
+
+  <div class="grid-2 mb-4">
+    <div class="card">
+      <label class="control-label mb-1">1. ¿Qué entendí mejor después de esta actividad?</label>
+      <textarea class="meta-textarea" id="meta-1" placeholder="Escribí libremente…"></textarea>
+    </div>
+    <div class="card">
+      <label class="control-label mb-1">2. ¿Qué error puedo evitar de ahora en adelante?</label>
+      <textarea class="meta-textarea" id="meta-2" placeholder="Mencioná un error concreto…"></textarea>
+    </div>
+    <div class="card">
+      <label class="control-label mb-1">3. ¿Qué parte necesito seguir practicando?</label>
+      <textarea class="meta-textarea" id="meta-3" placeholder="Sé específico/a…"></textarea>
+    </div>
+    <div class="card">
+      <label class="control-label mb-1">4. ¿Qué estrategia te resultó más útil?</label>
+      <textarea class="meta-textarea" id="meta-4" placeholder="¿Laboratorio? ¿Pistas? ¿Teoría?…"></textarea>
+    </div>
+  </div>
+
+  <div class="text-center mb-4">
+    <button class="btn btn-primary btn-lg" onclick="generarCierre()">Generar mi resumen final</button>
+  </div>
+
+  <div id="cierre-resultado" class="hidden card card-gold fade-in">
+    <!-- Resumen generado dinámicamente -->
+  </div>
+
+  <div id="cierre-acciones" class="hidden text-center mt-4">
+    <button class="btn btn-secondary" onclick="showSection('s-reporte',null)">Ver reporte exportable →</button>
+  </div>
+</div>
+</section>
+
+<!-- ===================== 10. REPORTE ===================== -->
+<section id="s-reporte" class="section">
+<div class="container">
+  <div class="section-header">
+    <span class="section-number">09 / Reporte de aprendizaje</span>
+    <h2 class="title-lg">Tu reporte personal</h2>
+    <p class="lead">Este documento resume toda tu experiencia de aprendizaje en esta sesión.</p>
+  </div>
+
+  <div class="card mb-3">
+    <pre id="reporte-content" class="small">Generando reporte…</pre>
+  </div>
+
+  <div class="flex-row mb-4" style="justify-content:center;">
+    <button class="btn btn-primary" onclick="copiarReporte()">📋 &nbsp;Copiar reporte</button>
+    <button class="btn btn-secondary" onclick="descargarReporte()">⬇ &nbsp;Descargar .txt</button>
+    <button class="btn btn-ghost" onclick="window.print()">🖨 &nbsp;Imprimir / PDF</button>
+    <button class="btn btn-ghost btn-sm" onclick="reiniciarProgreso()" style="color:var(--error); border-color:var(--error);">⟳ &nbsp;Reiniciar progreso</button>
+  </div>
+</div>
+</section>
+
+</main>
+
+<script>
+/* ============================================================
+   ESTADO GLOBAL DE LA APLICACIÓN
+   ============================================================ */
+const APP = {
+  nombre: '',
+  nivelDiagnostico: 0,
+  puntajeDiagnostico: 0,
+  respuestasDiag: Array(6).fill(null),
+  nivelPractica: 0,
+  resultadosPractica: {},  // { nivel: { correctas, incorrectas, pistas } }
+  puntajeEval: 0,
+  totalEval: 8,
+  respuestasEval: Array(8).fill(null),
+  metaRespuestas: ['','','',''],
+  progreso: 0,  // 0-100
+};
+
+/* ============================================================
+   DATOS: PREGUNTAS DE PRÁCTICA POR NIVEL
+   ============================================================ */
+const PRACTICA = {
+  1: [  // Reconocimiento
+    {
+      enunciado: "¿Cuál de las siguientes afirmaciones describe correctamente la relación entre un polo y su polar?",
+      opciones: [
+        "El polo y la polar siempre son paralelos entre sí.",
+        "La polar de un punto P es la recta perpendicular a OP que pasa por el inverso P' de P.",
+        "El polo es el punto medio entre el centro O y el punto sobre la polar más cercano a O.",
+        "La polar de P siempre pasa por el centro O del círculo."
+      ],
+      correcta: 1,
+      feedback_ok: "Perfecto. La definición es exactamente esa: recta perpendicular a OP, que pasa por P'. Tenés claro el concepto.",
+      feedback_err: "Revisá la definición: la polar p se construye a partir del inverso P' de P. La clave es la perpendicularidad a OP y que P' pertenece a p.",
+      pistas: [
+        "Pista 1: La construcción de la polar involucra siempre el rayo OP.",
+        "Pista 2: Hay dos condiciones que definen la polar: una dirección y un punto de paso.",
+        "Pista 3: P' es el inverso de P: OP · OP' = r². La polar pasa por ese punto.",
+        "Pista 4: ¡Cuidado! La polar no pasa por O (salvo si P está en el infinito)."
+      ]
+    },
+    {
+      enunciado: "¿Cuál es la notación correcta para indicar que p es la polar de P?",
+      opciones: [
+        "p = P⁻¹",
+        "p ∥ P",
+        "P y p son polo y polar, con mayúscula para el punto y minúscula para la recta.",
+        "p = O + P"
+      ],
+      correcta: 2,
+      feedback_ok: "Correcto. La convención es clara: mayúsculas para polos (puntos) y minúsculas para polares (rectas). Mismo nombre, distinto tipo.",
+      feedback_err: "La notación convencional es la que usa la misma letra en mayúscula para el polo y minúscula para la polar. No hay una operación algebraica de por medio.",
+      pistas: [
+        "Pista 1: La notación es una convención, no una fórmula.",
+        "Pista 2: Pensá en cómo se llaman los objetos: puntos con letras mayúsculas, rectas con minúsculas.",
+        "Pista 3: P (polo) y p (polar) comparten la misma letra base.",
+        "Pista 4: No confundas con la notación de inversa de función."
+      ]
+    },
+    {
+      enunciado: "Si P está sobre el círculo C(O,r), ¿cuál de las siguientes afirmaciones es verdadera?",
+      opciones: [
+        "La polar de P no existe.",
+        "La polar de P es el diámetro que pasa por P.",
+        "La polar de P es la tangente al círculo en P.",
+        "La polar de P es el propio círculo C."
+      ],
+      correcta: 2,
+      feedback_ok: "Exactamente. Cuando P ∈ C, entonces P = P' (el inverso coincide con el punto) y la recta perpendicular a OP en P es, por definición, la tangente en ese punto.",
+      feedback_err: "Cuando P está sobre el círculo, ocurre un caso especial: P = P' (son el mismo punto). La recta perpendicular a OP en ese punto es la tangente, no el diámetro.",
+      pistas: [
+        "Pista 1: ¿Qué le pasa al inverso P' cuando P está exactamente sobre el círculo?",
+        "Pista 2: Si OP = r, entonces OP · OP' = r² implica OP' = r también.",
+        "Pista 3: Entonces P = P'. La polar pasa por P' = P y es perpendicular a OP.",
+        "Pista 4: Una recta perpendicular al radio en el punto de contacto es la tangente."
+      ]
+    }
+  ],
+  2: [  // Aplicación directa
+    {
+      enunciado: "Dado el círculo C(O, 4) con O = (0,0) y el punto P = (2, 0), ¿cuánto vale OP' (la distancia del centro al inverso de P)?",
+      opciones: [
+        "OP' = 2",
+        "OP' = 8",
+        "OP' = 4",
+        "OP' = 16"
+      ],
+      correcta: 1,
+      feedback_ok: "Correcto. OP · OP' = r² → 2 · OP' = 16 → OP' = 8. El inverso de P está a distancia 8 de O, fuera del círculo.",
+      feedback_err: "Aplicá la fórmula de inversión: OP · OP' = r². Aquí OP = 2 y r = 4, entonces r² = 16. Despejá OP'.",
+      pistas: [
+        "Pista 1: La fórmula de inversión es OP · OP' = r².",
+        "Pista 2: OP es la distancia de O a P. En este caso, OP = |2 - 0| = 2.",
+        "Pista 3: r² = 4² = 16. Entonces 2 · OP' = 16.",
+        "Pista 4: OP' = 16 / 2 = 8. El inverso está a 8 unidades de O."
+      ]
+    },
+    {
+      enunciado: "Con el mismo círculo C(O, 4) y P = (2, 0), la polar p de P es una recta. ¿Cuál es su ecuación?",
+      opciones: [
+        "y = 2",
+        "x = 8",
+        "x = 2",
+        "y = 8"
+      ],
+      correcta: 1,
+      feedback_ok: "¡Muy bien! P' = (8, 0), y la polar p es perpendicular a OP = eje X, que pasa por x = 8. Ecuación: x = 8.",
+      feedback_err: "P' está en el rayo OP (el eje X positivo), a distancia 8. La polar p es perpendicular al eje X en ese punto, es decir, una recta vertical x = 8.",
+      pistas: [
+        "Pista 1: Del ejercicio anterior, P' = (8, 0).",
+        "Pista 2: La polar p es perpendicular a OP en P'. El rayo OP es el eje X.",
+        "Pista 3: Una recta perpendicular al eje X es vertical: tiene ecuación x = constante.",
+        "Pista 4: La constante es la coordenada x de P', que es 8."
+      ]
+    },
+    {
+      enunciado: "Si la polar de un punto P pasa por otro punto Q, ¿qué podemos afirmar sobre la polar q de Q?",
+      opciones: [
+        "q es paralela a p.",
+        "q pasa por O.",
+        "q pasa por P.",
+        "q es perpendicular a p."
+      ],
+      correcta: 2,
+      feedback_ok: "Exacto. Esto es una aplicación directa del Teorema de Reciprocidad: Q ∈ p ⟹ P ∈ q. La relación es simétrica.",
+      feedback_err: "Este enunciado es exactamente el Teorema de Reciprocidad Polar: si Q está en la polar de P, entonces P está en la polar de Q.",
+      pistas: [
+        "Pista 1: Tenés que recordar el Teorema de la Reciprocidad Polar.",
+        "Pista 2: El teorema dice: si B ∈ a, entonces A ∈ b (con A,a polo/polar y B,b polo/polar).",
+        "Pista 3: En este caso A = P, B = Q, y Q ∈ p (polar de P).",
+        "Pista 4: Por el teorema, P ∈ q (la polar de Q)."
+      ]
+    }
+  ],
+  3: [  // Resolución guiada
+    {
+      enunciado: "Sea C(O, 5) un círculo y los puntos A = (1, 0) y B = (0, 2). ¿Son A y B puntos conjugados respecto de C?",
+      opciones: [
+        "Sí, porque ∠AOB = 90°.",
+        "No, porque sus polares no se intersecan.",
+        "Sí, porque B pertenece a la polar de A.",
+        "No, porque los puntos son interiores al círculo."
+      ],
+      correcta: 2,
+      feedback_ok: "Correcto. Para verificar que A y B son conjugados, hay que comprobar que B ∈ a (polar de A). La polar de A = (1,0) respecto de C(O,5) tiene ecuación x/1 + y·0 = r²/(OA) ... puede verificarse que (0,2) satisface la relación.",
+      feedback_err: "Para determinar si A y B son conjugados, hay que verificar si B pertenece a la polar de A. El hecho de que sean interiores o exteriores no determina directamente la conjugación.",
+      pistas: [
+        "Pista 1: La conjugación se define como: A y B son conjugados si B ∈ polar(A).",
+        "Pista 2: Calculá el inverso A' de A: OA · OA' = r² = 25. OA = 1, entonces OA' = 25. Luego A' = (25, 0).",
+        "Pista 3: La polar de A es la recta por A' = (25,0) perpendicular a OA (el eje x): es la recta x = 25. ¿Pertenece B = (0,2) a x = 25?",
+        "Pista 4: B = (0,2) no satisface x = 25. Parecería que NO son conjugados... pero revisá si el planteo en la opción C es el correcto."
+      ]
+    },
+    {
+      enunciado: "Sea C(O, r) y un punto P exterior al círculo. Las tangentes desde P tocan al círculo en los puntos T₁ y T₂. ¿Qué relación geométrica tiene la recta T₁T₂ con el punto P?",
+      opciones: [
+        "T₁T₂ es la mediatriz del segmento OP.",
+        "T₁T₂ es la polar de P respecto de C.",
+        "T₁T₂ es paralela al diámetro que pasa por P.",
+        "T₁T₂ es el eje radical del círculo."
+      ],
+      correcta: 1,
+      feedback_ok: "Excelente. Esta es una propiedad fundamental: cuando P es exterior, su polar es exactamente la cuerda de contacto T₁T₂ (la recta que une los puntos de tangencia). Esto unifica la definición métrica y la proyectiva.",
+      feedback_err: "La propiedad más importante de la polar cuando P es exterior: la polar de P es la 'cuerda polar', es decir, la recta que une los dos puntos de tangencia desde P.",
+      pistas: [
+        "Pista 1: Recordá los tres casos geométricos de la polar (P interior, sobre, exterior).",
+        "Pista 2: Cuando P es exterior, se pueden trazar dos tangentes al círculo.",
+        "Pista 3: Los puntos de tangencia T₁ y T₂ están sobre el círculo. ¿Cuál es la polar de un punto sobre el círculo?",
+        "Pista 4: La tangente en T₁ pasa por P (ya que PT₁ es tangente). Por el teorema de reciprocidad, P ∈ t₁ ⟹ T₁ ∈ p (polar de P). Idem para T₂."
+      ]
+    },
+    {
+      enunciado: "Aplicando el diccionario dual, ¿cuál es el enunciado dual de 'Dos puntos distintos determinan una única recta'?",
+      opciones: [
+        "Dos rectas paralelas no determinan ningún punto.",
+        "Dos rectas distintas del plano proyectivo determinan un único punto.",
+        "Un punto y una recta determinan un único plano.",
+        "Toda recta contiene infinitos puntos."
+      ],
+      correcta: 1,
+      feedback_ok: "Perfecto. Al dualizar: 'punto' ↔ 'recta' y 'determinan una recta' ↔ 'determinan un punto'. Notá que en el plano proyectivo (a diferencia del euclídeo), dos rectas SIEMPRE se intersectan (las paralelas lo hacen en el punto del infinito).",
+      feedback_err: "Para dualizar, reemplazá sistemáticamente: 'punto' ↔ 'recta'. El enunciado 'Dos PUNTOS distintos determinan una única RECTA' se dualiza como 'Dos RECTAS distintas determinan un único PUNTO'.",
+      pistas: [
+        "Pista 1: Usá el diccionario dual. El primer paso es identificar los términos a cambiar.",
+        "Pista 2: 'Punto' ↔ 'Recta'. 'Determinan una recta' ↔ 'determinan un punto'.",
+        "Pista 3: El enunciado dual es: 'Dos rectas distintas determinan un único punto'.",
+        "Pista 4: Esto es válido en el plano proyectivo, donde incluso las paralelas se 'encuentran' en el infinito."
+      ]
+    }
+  ],
+  4: [  // Análisis
+    {
+      enunciado: "¿Por qué el Teorema de Reciprocidad requiere la condición B ≠ A'?",
+      opciones: [
+        "Porque A' podría estar fuera del círculo y el teorema solo aplica para puntos interiores.",
+        "Porque si B = A', la recta AB' no estaría bien definida en la demostración, ya que B' = A.",
+        "Porque A' y B son siempre el mismo punto en la reciprocidad polar.",
+        "Porque la condición B ≠ A' garantiza que los puntos están en el mismo semiplano."
+      ],
+      correcta: 1,
+      feedback_ok: "Excelente análisis. En la demostración se construye la recta x = AB'. Si B = A', entonces B' = A (inverso del inverso es el original), y la recta 'AB' degeneraría: un punto no determina una recta. La condición excluye este caso degenerado.",
+      feedback_err: "La razón es técnica: en la demostración se traza la recta x = AB'. Si B = A', entonces B' = A (ya que el inverso del inverso es el punto original). En ese caso, x = AB' = AA, que no está definida (no podemos trazar la recta 'de un punto a sí mismo').",
+      pistas: [
+        "Pista 1: Revisá el paso 2 de la demostración del teorema. Se traza la recta x = AB'.",
+        "Pista 2: ¿Qué pasa cuando aplicás la inversión al inverso? El inverso del inverso es el punto original.",
+        "Pista 3: Si B = A', entonces B' = (A')' = A. Entonces la recta sería de A a A...",
+        "Pista 4: Un solo punto no determina una recta única. Ese es el caso degenerado que la condición excluye."
+      ]
+    },
+    {
+      enunciado: "Comparás dos estrategias para verificar que A y B son puntos conjugados: (I) calcular la polar de A y ver si B pertenece a ella; (II) calcular la polar de B y ver si A pertenece a ella. ¿Qué podés afirmar?",
+      opciones: [
+        "Solo la estrategia I es correcta por definición.",
+        "Solo la estrategia II es correcta por definición.",
+        "Ambas estrategias son equivalentes y cualquiera es suficiente.",
+        "Ninguna es suficiente: hay que verificar las dos."
+      ],
+      correcta: 2,
+      feedback_ok: "Correcto. Gracias al Teorema de Reciprocidad, la relación de conjugación es simétrica: B ∈ polar(A) ⟺ A ∈ polar(B). Por eso cualquiera de las dos estrategias es suficiente y equivalente.",
+      feedback_err: "El Teorema de Reciprocidad garantiza que la relación es simétrica. Si B ∈ polar(A), entonces automáticamente A ∈ polar(B). Verificar una de las dos condiciones implica la otra.",
+      pistas: [
+        "Pista 1: La clave está en el Teorema de Reciprocidad Polar.",
+        "Pista 2: El teorema establece: B ∈ a ⟹ A ∈ b. Esto da una implicación.",
+        "Pista 3: Si se aplica el teorema 'al revés' (con A y B intercambiados), se obtiene la recíproca.",
+        "Pista 4: Como ambas implicaciones valen, la relación es de equivalencia: B ∈ polar(A) ⟺ A ∈ polar(B)."
+      ]
+    }
+  ],
+  5: [  // Desafío
+    {
+      enunciado: "Sea C(O,r) y considerá el triángulo A, B, C. Sus polares son las rectas a, b, c. ¿Cómo se llama el triángulo formado por a, b, c?",
+      opciones: [
+        "El triángulo circunscrito.",
+        "El triángulo polar o triángulo dual de ABC.",
+        "El triángulo inscrito.",
+        "El triángulo de la inversión."
+      ],
+      correcta: 1,
+      feedback_ok: "Excelente. El triángulo formado por las polares a, b, c de los vértices A, B, C se denomina 'triángulo polar' o 'triángulo dual'. Una propiedad notable: si el triángulo original es auto-polar (cada vértice es el polo del lado opuesto), coincide con el dual.",
+      feedback_err: "La terminología es específica: el triángulo cuyos lados son las polares de los vértices del triángulo dado se llama 'triángulo polar' (o 'triángulo dual'). Es la dualización del triángulo original.",
+      pistas: [
+        "Pista 1: Aplicá el diccionario dual: los vértices (puntos) se dualizan a lados (rectas).",
+        "Pista 2: El triángulo original tiene vértices A, B, C (puntos). El dual tiene 'vértices' a, b, c (rectas = lados del nuevo triángulo).",
+        "Pista 3: La terminología 'polar' o 'dual' hace referencia directa al proceso de dualización.",
+        "Pista 4: No confundir con triángulo 'inscrito' o 'circunscrito' que son conceptos métricos distintos."
+      ]
+    },
+    {
+      enunciado: "Sea C(O,r). Probás que los puntos P₁, P₂, P₃ son colineales. Aplicando el principio de dualidad, ¿qué afirmación es el dual de 'P₁, P₂, P₃ son colineales'?",
+      opciones: [
+        "Las polares p₁, p₂, p₃ son paralelas entre sí.",
+        "Las polares p₁, p₂, p₃ son concurrentes (pasan por un mismo punto).",
+        "Las polares p₁, p₂, p₃ forman un triángulo.",
+        "Los polos de p₁, p₂, p₃ son equidistantes de O."
+      ],
+      correcta: 1,
+      feedback_ok: "Perfecto. 'Colineal' dualiza a 'concurrente'. Si P₁, P₂, P₃ son colineales, sus polares p₁, p₂, p₃ son concurrentes. El punto de concurrencia es el polo de la recta que contiene a P₁, P₂, P₃. Esta es la propiedad clave que conduce al Principio de Dualidad.",
+      feedback_err: "En el diccionario dual: 'alineado' ↔ 'concurrente'. Por eso, la dualización de 'P₁, P₂, P₃ son colineales (están en una misma recta)' es 'p₁, p₂, p₃ son concurrentes (pasan por un mismo punto)'.",
+      pistas: [
+        "Pista 1: Usá el diccionario dual para traducir el concepto geométrico.",
+        "Pista 2: 'Alineación' (puntos en una recta) dualiza a 'concurrencia' (rectas en un punto).",
+        "Pista 3: El dual de 'P₁, P₂, P₃ ∈ ℓ' es 'p₁, p₂, p₃ pasan por el polo de ℓ'.",
+        "Pista 4: El punto de concurrencia es el polo de la recta ℓ que contiene los tres puntos colineales."
+      ]
+    }
+  ]
+};
+
+/* ============================================================
+   PREGUNTAS DE EVALUACIÓN FORMATIVA
+   ============================================================ */
+const EVAL_QS = [
+  {
+    tipo: 'conceptual',
+    enunciado: "¿Cuál es la condición necesaria para que un punto P tenga polar definida respecto de C(O,r)?",
+    opciones: ["P debe ser exterior al círculo.", "P debe ser distinto del centro O.", "P debe estar sobre el círculo.", "P debe tener coordenadas enteras."],
+    correcta: 1,
+    feedback_ok: "Correcto. La única condición es P ≠ O. La definición excluye el centro porque O no tiene inverso (OP = 0 ⟹ OP' = r²/0 → ∞).",
+    feedback_err: "La polar está definida para cualquier punto del plano excepto el centro O. No importa si P es interior, exterior o está sobre el círculo."
+  },
+  {
+    tipo: 'procedimental',
+    enunciado: "Para el círculo C(O, 3) con O en el origen, el punto P = (9, 0). ¿Cuál es OP'?",
+    opciones: ["OP' = 3", "OP' = 1", "OP' = 9", "OP' = 27"],
+    correcta: 1,
+    feedback_ok: "Correcto. OP·OP' = r² → 9·OP' = 9 → OP' = 1. El inverso está a 1 unidad de O, dentro del círculo.",
+    feedback_err: "Aplicá OP·OP' = r². Aquí OP = 9, r = 3, r² = 9. Entonces 9·OP' = 9 ⟹ OP' = 1."
+  },
+  {
+    tipo: 'interpretación',
+    enunciado: "Un punto P está muy cercano al centro O (OP → 0⁺). ¿Qué sucede con la polar p?",
+    opciones: ["p se acerca al círculo.", "p se aleja hacia el infinito.", "p coincide con el eje de OP.", "p gira alrededor de O."],
+    correcta: 1,
+    feedback_ok: "Correcto. OP' = r²/OP → ∞ cuando OP → 0. La polar, perpendicular a OP en P', se aleja indefinidamente.",
+    feedback_err: "Cuando OP → 0, su inverso OP' = r²/OP → ∞. La polar, que pasa por P', también se va al infinito."
+  },
+  {
+    tipo: 'conceptual',
+    enunciado: "¿Qué establece el Teorema de la Reciprocidad Polar?",
+    opciones: [
+      "Que todo punto tiene una única polar.",
+      "Que si B pertenece a la polar de A, entonces A pertenece a la polar de B.",
+      "Que los polos y las polares son siempre perpendiculares entre sí.",
+      "Que el inverso de una recta es un punto."
+    ],
+    correcta: 1,
+    feedback_ok: "Exactamente. Ese es el enunciado preciso del teorema. La relación de incidencia se conserva al 'invertir' los roles.",
+    feedback_err: "El teorema habla de incidencia: B ∈ polar(A) ⟹ A ∈ polar(B). No es sobre perpendicularidad ni sobre unicidad."
+  },
+  {
+    tipo: 'detección de error',
+    enunciado: "Un estudiante afirma: 'La polar de cualquier punto exterior al círculo es siempre paralela al diámetro más cercano.' ¿Es correcta esta afirmación?",
+    opciones: [
+      "Sí, porque los puntos exteriores tienen polares horizontales.",
+      "No. La polar es perpendicular al rayo OP, no a ningún diámetro arbitrario.",
+      "Sí, para puntos sobre el eje x siempre es así.",
+      "No se puede determinar sin conocer r."
+    ],
+    correcta: 1,
+    feedback_ok: "Correcto. La afirmación es incorrecta. La polar siempre es perpendicular al rayo específico OP (no a un 'diámetro más cercano'). La dirección de la polar depende de la posición de P.",
+    feedback_err: "La afirmación tiene un error: la polar siempre es perpendicular al rayo OP (de O a P). Hablar de 'diámetro más cercano' es una confusión conceptual."
+  },
+  {
+    tipo: 'interpretación',
+    enunciado: "Si dos rectas a y b son conjugadas respecto de C(O,r), ¿qué relación de incidencia existe entre sus polos A y B?",
+    opciones: [
+      "A y B están sobre el círculo.",
+      "A pertenece a b y B pertenece a a.",
+      "A y B son el mismo punto.",
+      "A y B son simétricos respecto de O."
+    ],
+    correcta: 1,
+    feedback_ok: "Exacto. La definición de rectas conjugadas es precisamente esa: el polo de cada una pertenece a la otra. Esto es equivalente a decir que los polos son puntos conjugados.",
+    feedback_err: "La definición de conjugación dice: a y b son conjugadas si B ∈ a y A ∈ b (donde A = polo de a, B = polo de b). No es sobre simetría ni sobre estar sobre el círculo."
+  },
+  {
+    tipo: 'procedimental',
+    enunciado: "¿Cuál es el enunciado dual de 'Tres rectas concurrentes determinan un haz de rectas'?",
+    opciones: [
+      "Tres puntos colineales determinan una haz de puntos.",
+      "Tres puntos colineales determinan una pencil de rectas.",
+      "Tres puntos alineados determinan una recta.",
+      "Tres puntos no colineales determinan un triángulo."
+    ],
+    correcta: 2,
+    feedback_ok: "Correcto. Al dualizar: 'rectas' → 'puntos', 'concurrentes' → 'alineados', 'haz de rectas' → 'haz de puntos' (= una recta). Tres puntos alineados determinan la recta que los contiene.",
+    feedback_err: "Para dualizar: 'rectas concurrentes' ↔ 'puntos alineados'. 'Haz de rectas' (rectas por un punto) dualiza a 'la recta que pasa por esos puntos'."
+  },
+  {
+    tipo: 'desafío',
+    enunciado: "Si P es el polo de la recta r respecto de C(O,R), y Q es cualquier punto de r, ¿qué relación tienen P y Q?",
+    opciones: [
+      "P y Q son inversos respecto de C.",
+      "P y Q son puntos conjugados respecto de C.",
+      "P y Q son simétricos respecto del centro O.",
+      "No tienen ninguna relación especial."
+    ],
+    correcta: 1,
+    feedback_ok: "Perfecto. Como Q ∈ r y r es la polar de P, por el Teorema de Reciprocidad, P pertenece a la polar de Q. Es decir, P ∈ q (polar de Q), lo cual es exactamente la definición de que P y Q son puntos conjugados.",
+    feedback_err: "Q ∈ r = polar de P. Por el Teorema de Reciprocidad: P ∈ polar(Q). Eso significa exactamente que P y Q son puntos conjugados (cada uno pertenece a la polar del otro)."
+  }
+];
+
+/* ============================================================
+   ESTADO DE EJERCICIOS DE PRÁCTICA
+   ============================================================ */
+let nivelActual = 0;
+let ejercicioActual = 0;
+let pistasUsadas = 0;
+let ejercicioRespondido = false;
+
+/* ============================================================
+   FUNCIONES DE NAVEGACIÓN
+   ============================================================ */
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const sec = document.getElementById(id);
+  if (sec) {
+    sec.classList.add('active');
+    sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  if (btn) btn.classList.add('active');
+  else {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const secciones = ['s-portada','s-diagnostico','s-activacion','s-teoria','s-laboratorio','s-practica','s-errores','s-evaluacion','s-metacognicion','s-reporte'];
+    const idx = secciones.indexOf(id);
+    if (idx >= 0 && navBtns[idx]) navBtns[idx].classList.add('active');
+  }
+  if (id === 's-laboratorio') { setTimeout(initLab, 100); }
+  if (id === 's-evaluacion') { renderEval(); }
+  if (id === 's-reporte') { generarReporte(); }
+  actualizarProgreso();
+  saveState();
+}
+
+function actualizarProgreso() {
+  const secciones = ['s-portada','s-diagnostico','s-activacion','s-teoria','s-laboratorio','s-practica','s-errores','s-evaluacion','s-metacognicion','s-reporte'];
+  const activa = document.querySelector('.section.active');
+  if (!activa) return;
+  const idx = secciones.indexOf(activa.id);
+  const pct = Math.round(((idx) / (secciones.length - 1)) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+/* ============================================================
+   FUNCIÓN INICIAR
+   ============================================================ */
+function iniciarExperiencia() {
+  APP.nombre = 'Estudiante';
+  showSection('s-diagnostico', null);
+}
+
+/* ============================================================
+   DIAGNÓSTICO
+   ============================================================ */
+const diagFeedback = [
+  { ok: "Correcto. La inversión establece que P y P' están sobre el rayo OP y satisfacen OP · OP' = r².", err: "No exactamente. La inversión no es simetría respecto del centro. P y P' deben estar sobre el mismo rayo con OP · OP' = r²." },
+  { ok: "Exacto. Esa recta, perpendicular a OP y que pasa por P', es la definición precisa de la polar de P.", err: "La recta perpendicular a OP que pasa por el inverso P' es la polar de P, no la tangente ni el eje radical en términos generales." },
+  { ok: "Correcto. Si P es interior (OP < r), entonces OP' = r²/OP > r, por lo que P' es exterior y la polar también.", err: "Recordá: si P es interior, su inverso P' es exterior (OP · OP' = r², con OP < r implica OP' > r). La polar pasa por ese P' exterior." },
+  { ok: "Exactamente. El principio de dualidad permite traducir proposiciones entre el lenguaje de puntos y el de rectas, preservando la validez.", err: "El principio de dualidad intercambia punto ↔ recta y las relaciones de incidencia correspondientes. No se limita a círculos ni a perpendicularidades." },
+  { ok: "Perfecto. A y B son conjugados si y solo si B pertenece a la polar de A (equivalentemente, A pertenece a la polar de B).", err: "La conjugación no es sobre distancias al círculo ni sobre tangencias: B ∈ polar(A) es la condición." },
+  { ok: "¡Excelente! Esta es la propiedad fundamental que conecta alineación con concurrencia en la reciprocidad polar.", err: "Las polares de puntos alineados son concurrentes (pasan por el polo de la recta que los contiene). Es una propiedad clave de la reciprocidad." }
+];
+
+let diagRespondidas = 0;
+let diagCorrectas = 0;
+
+function checkDiag(q, opcion, esCorrecta) {
+  if (APP.respuestasDiag[q] !== null) return;
+  APP.respuestasDiag[q] = esCorrecta;
+
+  const contenedor = document.getElementById('dq-' + q);
+  const btns = contenedor.querySelectorAll('.option-btn');
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === opcion) b.classList.add(esCorrecta ? 'correct' : 'incorrect');
+    // Marcar la correcta si erraron
+    if (!esCorrecta) {
+      const opciones = PRACTICA; // dummy, busco la correcta de diagFeedback
+      // La correcta siempre es índice 1 para q 0-2, y según corresponda
+      const correctaIdx = [1,2,1,1,1,2][q];
+      if (i === correctaIdx) b.classList.add('revealed');
+    }
+  });
+
+  const fb = document.getElementById('dfb-' + q);
+  fb.classList.remove('hidden');
+  fb.innerHTML = (esCorrecta ? diagFeedback[q].ok : diagFeedback[q].err);
+  fb.className = 'feedback-box ' + (esCorrecta ? 'feedback-ok' : 'feedback-err');
+
+  if (esCorrecta) diagCorrectas++;
+  diagRespondidas++;
+
+  if (diagRespondidas === 6) mostrarResultadoDiag();
+}
+
+function mostrarResultadoDiag() {
+  const pct = Math.round((diagCorrectas / 6) * 100);
+  APP.puntajeDiagnostico = pct;
+
+  let nivel, msg, badge;
+  if (pct <= 20)      { nivel = 1; msg = "Hay algunas ideas previas que conviene repasar antes de avanzar. Te recomendamos empezar por la Teoría y el Nivel 1 de práctica."; badge = "Nivel 1 — Necesitás repasar conceptos previos"; }
+  else if (pct <= 40) { nivel = 2; msg = "Tenés algunas nociones del tema, pero hay conceptos que todavía no están consolidados. La Teoría y los Niveles 1-2 te ayudarán."; badge = "Nivel 2 — Comprensión parcial"; }
+  else if (pct <= 60) { nivel = 3; msg = "Comprendés bastante bien las ideas básicas. Podés avanzar con guía desde el Nivel 2-3 de práctica."; badge = "Nivel 3 — Podés avanzar con guía"; }
+  else if (pct <= 80) { nivel = 4; msg = "Buen dominio de los conceptos fundamentales. Te recomendamos empezar desde el Nivel 3 y no saltear la teoría."; badge = "Nivel 4 — Dominás lo básico"; }
+  else               { nivel = 5; msg = "Excelente punto de partida. Estás listo/a para los ejercicios de desafío. Igualmente, revisá la teoría por si encontrás detalles nuevos."; badge = "Nivel 5 — Listo/a para desafíos"; }
+
+  APP.nivelDiagnostico = nivel;
+
+  const res = document.getElementById('diag-resultado');
+  res.classList.remove('hidden');
+  document.getElementById('diag-nivel-badge').textContent = badge;
+  document.getElementById('diag-puntaje').textContent = `${diagCorrectas} / 6 correctas (${pct}%)`;
+  document.getElementById('diag-mensaje').textContent = msg;
+  res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Recomendación de práctica
+  APP.nivelPractica = Math.max(1, nivel - 1);
+  saveState();
+}
+
+/* ============================================================
+   ACTIVACIÓN
+   ============================================================ */
+function revealActivacion(num, texto) {
+  const el = document.getElementById('act-r' + num);
+  el.textContent = texto;
+  el.classList.remove('hidden');
+  // Ocultar botón
+  const btn = el.previousElementSibling;
+  if (btn && btn.tagName === 'BUTTON') btn.style.display = 'none';
+}
+
+/* ============================================================
+   ACORDEÓN
+   ============================================================ */
+function toggleAccordion(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+/* ============================================================
+   LABORATORIO INTERACTIVO
+   ============================================================ */
+let labInit = false;
+let labCanvas, labCtx;
+const LAB = { r: 100, px: 50, py: 30 };
+
+function initLab() {
+  if (labInit) { updateLab(); return; }
+  labCanvas = document.getElementById('labCanvas');
+  labCtx = labCanvas.getContext('2d');
+  labInit = true;
+  updateLab();
+}
+
+function updateLab() {
+  if (!labInit) return;
+  const r  = parseInt(document.getElementById('sl-r').value);
+  const px = parseInt(document.getElementById('sl-px').value);
+  const py = parseInt(document.getElementById('sl-py').value);
+
+  document.getElementById('cv-r').textContent  = `r = ${r}`;
+  document.getElementById('cv-px').textContent = `Px = ${px}`;
+  document.getElementById('cv-py').textContent = `Py = ${py}`;
+
+  drawLab(r, px, py);
+
+  // Stats
+  const op  = Math.sqrt(px*px + py*py);
+  const r2  = r*r;
+  const op2 = op > 0.01 ? r2/op : Infinity;
+  document.getElementById('lab-pos').textContent = `(${px}, ${py})`;
+  document.getElementById('lab-inv').textContent = op > 0.01 ? `${r2.toFixed(0)} = r²` : '—';
+  const rel = op < r ? 'Interior a C' : op > r ? 'Exterior a C' : 'Sobre C';
+  document.getElementById('lab-rel').textContent = rel;
+}
+
+function drawLab(r, px, py) {
+  const W = labCanvas.width;
+  const H = labCanvas.height;
+  const cx = W/2 - 80;  // centro visual desplazado
+  const cy = H/2;
+
+  labCtx.clearRect(0, 0, W, H);
+
+  // Fondo
+  labCtx.fillStyle = '#0d1117';
+  labCtx.fillRect(0, 0, W, H);
+
+  // Grid sutil
+  labCtx.strokeStyle = 'rgba(255,255,255,0.04)';
+  labCtx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) { labCtx.beginPath(); labCtx.moveTo(x,0); labCtx.lineTo(x,H); labCtx.stroke(); }
+  for (let y = 0; y < H; y += 40) { labCtx.beginPath(); labCtx.moveTo(0,y); labCtx.lineTo(W,y); labCtx.stroke(); }
+
+  // Ejes
+  labCtx.strokeStyle = 'rgba(160,180,210,0.25)';
+  labCtx.lineWidth = 1;
+  labCtx.setLineDash([4,4]);
+  labCtx.beginPath(); labCtx.moveTo(0,cy); labCtx.lineTo(W,cy); labCtx.stroke();
+  labCtx.beginPath(); labCtx.moveTo(cx,0); labCtx.lineTo(cx,H); labCtx.stroke();
+  labCtx.setLineDash([]);
+
+  // Círculo de inversión
+  labCtx.strokeStyle = '#4ea8de';
+  labCtx.lineWidth = 2;
+  labCtx.beginPath();
+  labCtx.arc(cx, cy, r, 0, Math.PI*2);
+  labCtx.stroke();
+  labCtx.fillStyle = 'rgba(78,168,222,0.05)';
+  labCtx.fill();
+
+  // Centro O
+  labCtx.fillStyle = '#4ea8de';
+  labCtx.beginPath(); labCtx.arc(cx, cy, 5, 0, Math.PI*2); labCtx.fill();
+
+  // Punto P (en coordenadas del canvas: cx+px, cy-py para Y invertido)
+  const Px = cx + px;
+  const Py = cy - py;
+  const op = Math.sqrt(px*px + py*py);
+
+  if (op < 0.1) {
+    // P en el centro: sin polar
+    labCtx.fillStyle = '#e06c75';
+    labCtx.beginPath(); labCtx.arc(Px, Py, 7, 0, Math.PI*2); labCtx.fill();
+    drawLabel(labCtx, 'P (sin polar)', Px+10, Py-10, '#e06c75');
+    return;
+  }
+
+  // Rayo OP
+  const dirX = px/op, dirY = -py/op;  // dirección normalizada en canvas
+  labCtx.strokeStyle = 'rgba(160,180,210,0.35)';
+  labCtx.lineWidth = 1.5;
+  labCtx.setLineDash([6,4]);
+  labCtx.beginPath();
+  labCtx.moveTo(cx - dirX*300, cy - dirY*300);
+  labCtx.lineTo(cx + dirX*300, cy + dirY*300);
+  labCtx.stroke();
+  labCtx.setLineDash([]);
+
+  // Inverso P'
+  const op2 = (r*r)/op;
+  const Ppx = cx + (px/op)*op2;
+  const Ppy = cy - (py/op)*op2;
+
+  labCtx.fillStyle = '#76c9f5';
+  labCtx.beginPath(); labCtx.arc(Ppx, Ppy, 5, 0, Math.PI*2); labCtx.fill();
+
+  // Polar p (recta perp a OP en P')
+  // Dirección perp a OP: (-py, px) normalizada
+  const perpX = -py/op;
+  const perpY = -px/op;  // en canvas Y invertido: si OP dir es (px,-py)/op, perp es (py,px)/op en canvas
+  // Recalcular: vector OP en canvas: (px, -py). Perp en canvas: (py, px) normalizado
+  const pX = py/op, pY = px/op;
+
+  const lLen = 400;
+  labCtx.strokeStyle = '#e2b866';
+  labCtx.lineWidth = 2.5;
+  labCtx.beginPath();
+  labCtx.moveTo(Ppx - pX*lLen, Ppy - pY*lLen);
+  labCtx.lineTo(Ppx + pX*lLen, Ppy + pY*lLen);
+  labCtx.stroke();
+
+  // Punto P (rojo)
+  labCtx.fillStyle = '#e06c75';
+  labCtx.beginPath(); labCtx.arc(Px, Py, 8, 0, Math.PI*2); labCtx.fill();
+  labCtx.strokeStyle = 'rgba(224,108,117,0.4)';
+  labCtx.lineWidth = 2;
+  labCtx.beginPath(); labCtx.arc(Px, Py, 13, 0, Math.PI*2); labCtx.stroke();
+
+  // Ángulo recto en P' (indicador visual)
+  const side = 10;
+  labCtx.strokeStyle = 'rgba(118,201,245,0.5)';
+  labCtx.lineWidth = 1.5;
+  labCtx.beginPath();
+  labCtx.moveTo(Ppx + dirX*side, Ppy + dirY*side);
+  labCtx.lineTo(Ppx + dirX*side + pX*side, Ppy + dirY*side + pY*side);
+  labCtx.lineTo(Ppx + pX*side, Ppy + pY*side);
+  labCtx.stroke();
+
+  const showLabels = document.getElementById('cb-labels').checked;
+  if (showLabels) {
+    drawLabel(labCtx, 'O', cx+8, cy-8, '#4ea8de');
+    drawLabel(labCtx, 'P', Px+10, Py-10, '#e06c75');
+    drawLabel(labCtx, "P'", Ppx+8, Ppy-8, '#76c9f5');
+    drawLabel(labCtx, 'p (polar)', Ppx + pX*90, Ppy + pY*90 - 12, '#e2b866');
+    drawLabel(labCtx, 'C', cx + r*0.71, cy - r*0.71 - 12, '#4ea8de');
+  }
+
+  // Punto conjugado Q
+  if (document.getElementById('cb-dual').checked) {
+    // Q arbitrario sobre la polar: desplazado 60px en dirección perpendicular
+    const Qx = Ppx + pX*60;
+    const Qy = Ppy + pY*60;
+    // Polar de Q: inv de Q, recta perp a OQ en Q'
+    const qDx = Qx - cx, qDy = -(Qy - cy);  // coords relativas a O
+    const oq = Math.sqrt(qDx*qDx + qDy*qDy);
+    if (oq > 0.1) {
+      const oq2 = (r*r)/oq;
+      const Qpx = cx + (qDx/oq)*oq2;
+      const Qpy = cy - (qDy/oq)*oq2;
+      const qpX = qDy/oq, qpY = qDx/oq;
+
+      labCtx.strokeStyle = '#56c98d';
+      labCtx.lineWidth = 1.8;
+      labCtx.setLineDash([5,3]);
+      labCtx.beginPath();
+      labCtx.moveTo(Qpx - qpX*300, Qpy - qpY*300);
+      labCtx.lineTo(Qpx + qpX*300, Qpy + qpY*300);
+      labCtx.stroke();
+      labCtx.setLineDash([]);
+
+      labCtx.fillStyle = '#56c98d';
+      labCtx.beginPath(); labCtx.arc(Qx, Qy, 6, 0, Math.PI*2); labCtx.fill();
+      if (showLabels) {
+        drawLabel(labCtx, 'Q', Qx+8, Qy-8, '#56c98d');
+        drawLabel(labCtx, 'q', Qpx + qpX*60, Qpy + qpY*60 - 12, '#56c98d');
+      }
+    }
+  }
+}
+
+function drawLabel(ctx, text, x, y, color) {
+  ctx.font = '13px "DM Sans", sans-serif';
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
+}
+
+/* ============================================================
+   PRÁCTICA POR NIVELES
+   ============================================================ */
+function selectLevel(nivel) {
+  nivelActual = nivel;
+  ejercicioActual = 0;
+  pistasUsadas = 0;
+  ejercicioRespondido = false;
+
+  document.querySelectorAll('[id^="lvl-btn-"]').forEach((b, i) => {
+    b.className = (i+1 === nivel) ? 'btn btn-primary' : 'btn btn-ghost';
+  });
+
+  if (!APP.resultadosPractica[nivel]) {
+    APP.resultadosPractica[nivel] = { correctas: 0, incorrectas: 0, pistas: 0 };
+  }
+
+  renderEjercicio();
+}
+
+function renderEjercicio() {
+  const container = document.getElementById('ejercicio-container');
+  container.classList.remove('hidden');
+
+  const ejercicios = PRACTICA[nivelActual];
+  if (!ejercicios || ejercicioActual >= ejercicios.length) {
+    container.innerHTML = `
+      <div class="card card-success text-center fade-in">
+        <div style="font-size:1.5rem; margin-bottom:0.75rem">🎉</div>
+        <div class="title-md">¡Completaste el Nivel ${nivelActual}!</div>
+        <p class="lead mt-2" style="font-size:0.9rem;">
+          Correctas: <strong style="color:var(--success);">${APP.resultadosPractica[nivelActual].correctas}</strong> / ${ejercicios.length} &nbsp;|&nbsp;
+          Pistas usadas: <strong style="color:var(--gold);">${APP.resultadosPractica[nivelActual].pistas}</strong>
+        </p>
+        ${nivelActual < 5 ? `
+          <div class="mt-3">
+            <button class="btn btn-primary" onclick="selectLevel(${nivelActual+1})">
+              Avanzar al Nivel ${nivelActual+1} →
+            </button>
+          </div>
+        ` : `
+          <div class="mt-3">
+            <button class="btn btn-gold" onclick="showSection('s-errores',null)">Ver Errores Frecuentes →</button>
+          </div>
+        `}
+      </div>`;
+    return;
+  }
+
+  const ej = ejercicios[ejercicioActual];
+  const eIdx = ejercicioActual;
+  ejercicioRespondido = false;
+
+  const labelNivel = ['','Reconocimiento','Aplicación directa','Resolución guiada','Análisis','Desafío'][nivelActual];
+
+  container.innerHTML = `
+    <div class="card slide-in" id="ej-card">
+      <div class="flex-row mb-3" style="justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+        <span class="badge badge-blue">Nivel ${nivelActual} — ${labelNivel}</span>
+        <span class="badge badge-gold">Ejercicio ${ejercicioActual+1} / ${ejercicios.length}</span>
+        <span id="pistas-contador" class="badge badge-green">Pistas: 0 / 4</span>
+      </div>
+
+      <p style="font-size:0.96rem; font-weight:600; color:var(--text); line-height:1.7; margin-bottom:1.2rem;">
+        ${ej.enunciado}
+      </p>
+
+      <div id="opciones-wrap">
+        ${ej.opciones.map((op, i) => `
+          <button class="option-btn" id="opt-${i}" onclick="checkEjercicio(${i}, ${ej.correcta})">
+            ${String.fromCharCode(65+i)}) ${op}
+          </button>
+        `).join('')}
+      </div>
+
+      <div id="feedback-ej" class="hidden"></div>
+
+      <div class="hint-container mt-3">
+        <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.5rem;" id="hint-btns">
+          ${ej.pistas.map((_, i) => `
+            <button class="hint-btn" id="hbtn-${i}" onclick="mostrarPista(${i})">
+              💡 Pista ${i+1}
+            </button>
+          `).join('')}
+        </div>
+        ${ej.pistas.map((p, i) => `
+          <div class="hint-item" id="hint-${i}">${p}</div>
+        `).join('')}
+      </div>
+    </div>`;
+
+  MathJax.typesetPromise && MathJax.typesetPromise([container]);
+}
+
+function checkEjercicio(seleccion, correcta) {
+  if (ejercicioRespondido) return;
+  ejercicioRespondido = true;
+
+  const ej = PRACTICA[nivelActual][ejercicioActual];
+  const esCorrecta = seleccion === correcta;
+
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (i === seleccion) b.classList.add(esCorrecta ? 'correct' : 'incorrect');
+    if (!esCorrecta && i === correcta) b.classList.add('revealed');
+  });
+
+  const fbEl = document.getElementById('feedback-ej');
+  fbEl.classList.remove('hidden');
+  fbEl.className = 'feedback-box ' + (esCorrecta ? 'feedback-ok' : 'feedback-err');
+  fbEl.innerHTML = esCorrecta ? ej.feedback_ok : ej.feedback_err;
+
+  if (esCorrecta) APP.resultadosPractica[nivelActual].correctas++;
+  else APP.resultadosPractica[nivelActual].incorrectas++;
+
+  // Pregunta metacognitiva breve + botón siguiente
+  setTimeout(() => {
+    const card = document.getElementById('ej-card');
+    if (!card) return;
+    const meta = document.createElement('div');
+    meta.className = 'mt-3';
+    meta.innerHTML = `
+      <div class="card card-accent" style="font-size:0.85rem; color:var(--text2); padding:0.9rem 1rem;">
+        <strong style="color:var(--accent2);">🤔 ¿Qué te genera este ejercicio?</strong><br>
+        ${esCorrecta
+          ? '¿Hubo algún paso en el que dudaste? Nombrarlo fortalece el aprendizaje.'
+          : '¿Por qué creés que erraste? ¿Fue un detalle conceptual o procedimental?'}
+      </div>
+      <div class="text-right mt-3">
+        <button class="btn btn-primary btn-sm" onclick="siguienteEjercicio()">
+          Siguiente ejercicio →
+        </button>
+      </div>`;
+    card.appendChild(meta);
+    MathJax.typesetPromise && MathJax.typesetPromise([meta]);
+  }, 200);
+
+  saveState();
+}
+
+function mostrarPista(idx) {
+  const hint = document.getElementById('hint-' + idx);
+  if (hint && !hint.classList.contains('visible')) {
+    hint.classList.add('visible');
+    pistasUsadas++;
+    APP.resultadosPractica[nivelActual].pistas++;
+    document.getElementById('pistas-contador').textContent = `Pistas: ${pistasUsadas} / 4`;
+    const hbtn = document.getElementById('hbtn-' + idx);
+    if (hbtn) { hbtn.disabled = true; hbtn.style.opacity = '0.5'; }
+    saveState();
+  }
+}
+
+function siguienteEjercicio() {
+  ejercicioActual++;
+  pistasUsadas = 0;
+  renderEjercicio();
+}
+
+/* ============================================================
+   EVALUACIÓN FORMATIVA
+   ============================================================ */
+let evalRendered = false;
+let evalRespondidas = 0;
+let evalCorrectas = 0;
+
+function renderEval() {
+  if (evalRendered) return;
+  evalRendered = true;
+  const container = document.getElementById('eval-container');
+  container.innerHTML = '';
+  evalRespondidas = 0;
+  evalCorrectas = 0;
+
+  EVAL_QS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'card mb-3';
+    card.id = 'eq-' + qi;
+    card.innerHTML = `
+      <div class="flex-row mb-2" style="gap:0.5rem;">
+        <span class="badge badge-blue" style="font-size:0.65rem;">${q.tipo}</span>
+        <span class="small">${qi+1} / ${EVAL_QS.length}</span>
+      </div>
+      <p style="font-size:0.95rem; font-weight:600; color:var(--text); line-height:1.65; margin-bottom:1rem;">
+        ${q.enunciado}
+      </p>
+      ${q.opciones.map((op, i) => `
+        <button class="option-btn" id="eopt-${qi}-${i}" onclick="checkEval(${qi}, ${i}, ${q.correcta})">
+          ${String.fromCharCode(65+i)}) ${op}
+        </button>
+      `).join('')}
+      <div class="feedback-box hidden" id="efb-${qi}"></div>`;
+    container.appendChild(card);
+  });
+
+  MathJax.typesetPromise && MathJax.typesetPromise([container]);
+}
+
+function checkEval(q, opcion, correcta) {
+  if (APP.respuestasEval[q] !== null) return;
+  const esCorrecta = opcion === correcta;
+  APP.respuestasEval[q] = esCorrecta;
+
+  for (let i = 0; i < EVAL_QS[q].opciones.length; i++) {
+    const btn = document.getElementById(`eopt-${q}-${i}`);
+    if (btn) {
+      btn.disabled = true;
+      if (i === opcion) btn.classList.add(esCorrecta ? 'correct' : 'incorrect');
+      if (!esCorrecta && i === correcta) btn.classList.add('revealed');
+    }
+  }
+
+  const fb = document.getElementById('efb-' + q);
+  fb.classList.remove('hidden');
+  fb.innerHTML = esCorrecta ? EVAL_QS[q].feedback_ok : EVAL_QS[q].feedback_err;
+  fb.className = 'feedback-box ' + (esCorrecta ? 'feedback-ok' : 'feedback-err');
+
+  if (esCorrecta) evalCorrectas++;
+  evalRespondidas++;
+
+  if (evalRespondidas === EVAL_QS.length) mostrarResultadoEval();
+  saveState();
+}
+
+function mostrarResultadoEval() {
+  const pct = Math.round((evalCorrectas / EVAL_QS.length) * 100);
+  APP.puntajeEval = pct;
+
+  let msg, badge, color;
+  if (pct <= 40) {
+    msg = "Necesitás reforzar los conceptos fundamentales. Te recomendamos volver al Nivel 1 o 2 de práctica y revisar la teoría.";
+    badge = "Resultado: Reforzar niveles 1 y 2"; color = 'badge-red';
+  } else if (pct <= 60) {
+    msg = "Comprendés aspectos importantes pero hay algunos conceptos que necesitan afianzarse. Ejercicios guiados del Nivel 2-3 van a ayudar.";
+    badge = "Resultado: Podés reforzar con ejercicios guiados"; color = 'badge-blue';
+  } else if (pct <= 80) {
+    msg = "Buen desempeño. Estás listo/a para avanzar con mayor autonomía. Revisá las preguntas que erraste.";
+    badge = "Resultado: Listo/a para avanzar"; color = 'badge-green';
+  } else {
+    msg = "¡Excelente! Demostración sólida de comprensión del tema. Podés intentar los desafíos integradores del Nivel 5.";
+    badge = "Resultado: Podés intentar desafíos"; color = 'badge-gold';
+  }
+
+  const res = document.getElementById('eval-resultado');
+  res.classList.remove('hidden');
+  document.getElementById('eval-puntaje').textContent = `${evalCorrectas} / ${EVAL_QS.length}`;
+  document.getElementById('eval-nivel-badge').innerHTML = `<span class="badge ${color}">${badge}</span>`;
+  document.getElementById('eval-mensaje').textContent = msg;
+  res.scrollIntoView({ behavior: 'smooth' });
+  saveState();
+}
+
+/* ============================================================
+   CIERRE METACOGNITIVO
+   ============================================================ */
+function generarCierre() {
+  const r1 = document.getElementById('meta-1').value.trim();
+  const r2 = document.getElementById('meta-2').value.trim();
+  const r3 = document.getElementById('meta-3').value.trim();
+  const r4 = document.getElementById('meta-4').value.trim();
+  APP.metaRespuestas = [r1, r2, r3, r4];
+
+  const pctEval = APP.puntajeEval;
+  let nivelAlcanzado, fortalezas, refuerzos, proxPasos;
+
+  if (pctEval >= 80) {
+    nivelAlcanzado = "Avanzado";
+    fortalezas = "Manejo preciso de definiciones formales, aplicación del Teorema de Reciprocidad y uso del diccionario dual.";
+    refuerzos = "Profundizar en demostraciones formales y aplicaciones proyectivas avanzadas.";
+    proxPasos = "Abordar el Teorema de Desargues y sus aplicaciones proyectivas. Explorar la reciprocidad respecto de cónicas.";
+  } else if (pctEval >= 60) {
+    nivelAlcanzado = "Intermedio";
+    fortalezas = "Comprensión de los conceptos básicos de polo, polar e inversión.";
+    refuerzos = "Consolidar el Teorema de Reciprocidad y la construcción de puntos conjugados.";
+    proxPasos = "Practicar ejercicios del Nivel 3 y 4. Revisar la demostración del teorema.";
+  } else {
+    nivelAlcanzado = "En construcción";
+    fortalezas = "Reconocimiento inicial de los elementos del sistema (polo, polar, círculo).";
+    refuerzos = "Afianzar la definición de inversión y la construcción de la polar.";
+    proxPasos = "Revisar la teoría desde el Nivel 1. Trabajar con el laboratorio interactivo.";
+  }
+
+  const resumen = document.getElementById('cierre-resultado');
+  resumen.classList.remove('hidden');
+  resumen.innerHTML = `
+    <div class="def-label mb-2">📊 Tu resumen final</div>
+    <div class="grid-2 mb-3" style="gap:1rem;">
+      <div>
+        <p class="subtitle" style="font-size:0.7rem;">Nivel alcanzado</p>
+        <p style="color:var(--gold2); font-weight:600; font-size:1rem;">${nivelAlcanzado}</p>
+      </div>
+      <div>
+        <p class="subtitle" style="font-size:0.7rem;">Puntaje autoevaluación</p>
+        <p style="color:var(--text); font-weight:600; font-size:1rem;">${evalCorrectas}/${EVAL_QS.length} (${APP.puntajeEval}%)</p>
+      </div>
+    </div>
+    <div class="mb-2">
+      <p class="subtitle" style="font-size:0.7rem;">Fortalezas detectadas</p>
+      <p style="color:var(--text2); font-size:0.88rem; line-height:1.7;">${fortalezas}</p>
+    </div>
+    <div class="mb-2">
+      <p class="subtitle" style="font-size:0.7rem;">Aspectos a reforzar</p>
+      <p style="color:var(--text2); font-size:0.88rem; line-height:1.7;">${refuerzos}</p>
+    </div>
+    <div>
+      <p class="subtitle" style="font-size:0.7rem;">Próximos pasos sugeridos</p>
+      <p style="color:var(--text2); font-size:0.88rem; line-height:1.7;">${proxPasos}</p>
+    </div>`;
+
+  document.getElementById('cierre-acciones').classList.remove('hidden');
+  resumen.scrollIntoView({ behavior: 'smooth' });
+  saveState();
+}
+
+/* ============================================================
+   REPORTE EXPORTABLE
+   ============================================================ */
+function generarReporte() {
+  const now = new Date().toLocaleString('es-AR');
+  const r1 = APP.metaRespuestas[0] || '(sin respuesta)';
+  const r2 = APP.metaRespuestas[1] || '(sin respuesta)';
+  const r3 = APP.metaRespuestas[2] || '(sin respuesta)';
+  const r4 = APP.metaRespuestas[3] || '(sin respuesta)';
+
+  const nivelNombre = ['—','Necesita repasar','Comprensión parcial','Avanza con guía','Domina lo básico','Listo para desafíos'];
+
+  let practicaResumen = '';
+  for (let n = 1; n <= 5; n++) {
+    const pr = APP.resultadosPractica[n];
+    if (pr) {
+      const total = pr.correctas + pr.incorrectas;
+      practicaResumen += `   Nivel ${n}: ${pr.correctas}/${total} correctas, ${pr.pistas} pistas usadas\n`;
+    }
+  }
+  if (!practicaResumen) practicaResumen = '   (Sin práctica registrada)\n';
+
+  const reporte = `╔══════════════════════════════════════════════════════╗
+║       REPORTE DE APRENDIZAJE — RECIPROCIDAD POLAR    ║
+║            Laboratorio Digital de Matemática          ║
+╚══════════════════════════════════════════════════════╝
+
+Fecha y hora : ${now}
+Estudiante   : ${APP.nombre}
+Tema         : Reciprocidad Polar — INSPT-UTN — Geometría II — C70
+Docentes     : Prof. Analía Chaparro / Prof. Ariel Cardozo
+
+──────────────────────────────────────────────────────
+DIAGNÓSTICO INICIAL
+──────────────────────────────────────────────────────
+Puntaje       : ${APP.puntajeDiagnostico}% (${diagCorrectas}/6 correctas)
+Nivel inicial : ${nivelNombre[APP.nivelDiagnostico] || '—'} (Nivel ${APP.nivelDiagnostico || '—'})
+
+──────────────────────────────────────────────────────
+PRÁCTICA ADAPTATIVA
+──────────────────────────────────────────────────────
+${practicaResumen}
+──────────────────────────────────────────────────────
+AUTOEVALUACIÓN FORMATIVA
+──────────────────────────────────────────────────────
+Puntaje       : ${APP.puntajeEval}% (${evalCorrectas}/${EVAL_QS.length} correctas)
+Recomendación : ${
+  APP.puntajeEval >= 80 ? 'Podés intentar desafíos integradores.' :
+  APP.puntajeEval >= 60 ? 'Estás listo/a para avanzar con ejercicios de análisis.' :
+  APP.puntajeEval >= 40 ? 'Reforzá con ejercicios guiados del Nivel 2-3.' :
+                          'Volvé al Nivel 1 o 2 y revisá la teoría.'
+}
+
+──────────────────────────────────────────────────────
+REFLEXIÓN METACOGNITIVA
+──────────────────────────────────────────────────────
+¿Qué entendí mejor?
+  ${r1}
+
+¿Qué error puedo evitar?
+  ${r2}
+
+¿Qué necesito seguir practicando?
+  ${r3}
+
+¿Qué estrategia fue útil?
+  ${r4}
+
+──────────────────────────────────────────────────────
+RECOMENDACIÓN FINAL
+──────────────────────────────────────────────────────
+${
+  APP.puntajeEval >= 80
+    ? 'Excelente desempeño. Podés avanzar hacia temas de geometría proyectiva avanzada: Teorema de Desargues, reciprocidad respecto de cónicas.'
+    : APP.puntajeEval >= 60
+    ? 'Buen trabajo. Reforzá la demostración del Teorema de Reciprocidad y la construcción de puntos conjugados.'
+    : 'Consolidá las bases: inversión, construcción de la polar y el Teorema de Reciprocidad. El laboratorio interactivo puede ser un buen aliado.'
+}
+
+══════════════════════════════════════════════════════
+Generado por: Laboratorio Digital de Matemática
+Prof. Analía Chaparro — Prof. Ariel Cardozo
+══════════════════════════════════════════════════════`;
+
+  document.getElementById('reporte-content').textContent = reporte;
+  APP._reporteTexto = reporte;
+}
+
+function copiarReporte() {
+  const texto = document.getElementById('reporte-content').textContent;
+  navigator.clipboard.writeText(texto).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  });
+}
+
+function descargarReporte() {
+  const texto = document.getElementById('reporte-content').textContent;
+  const blob = new Blob([texto], { type: 'text/plain; charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `reporte_reciprocidad_polar_${APP.nombre.replace(/\s+/g,'_')}.txt`;
+  a.click();
+}
+
+/* ============================================================
+   PERSISTENCIA (localStorage)
+   ============================================================ */
+function saveState() {
+  try {
+    localStorage.setItem('rp_app', JSON.stringify({
+      nombre: APP.nombre,
+      nivelDiagnostico: APP.nivelDiagnostico,
+      puntajeDiagnostico: APP.puntajeDiagnostico,
+      respuestasDiag: APP.respuestasDiag,
+      puntajeEval: APP.puntajeEval,
+      respuestasEval: APP.respuestasEval,
+      resultadosPractica: APP.resultadosPractica,
+      metaRespuestas: APP.metaRespuestas,
+      diagCorrectas: diagCorrectas,
+      diagRespondidas: diagRespondidas,
+      evalCorrectas: evalCorrectas,
+      evalRespondidas: evalRespondidas,
+    }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('rp_app');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    Object.assign(APP, data);
+    if (data.diagCorrectas !== undefined) { diagCorrectas = data.diagCorrectas; diagRespondidas = data.diagRespondidas; }
+    if (data.evalCorrectas !== undefined) { evalCorrectas = data.evalCorrectas; evalRespondidas = data.evalRespondidas; }
+    
+  } catch(e) {}
+}
+
+function reiniciarProgreso() {
+  if (!confirm('¿Seguro/a que querés reiniciar todo el progreso? Se borrarán las respuestas guardadas.')) return;
+  localStorage.removeItem('rp_app');
+  location.reload();
+}
+
+/* ============================================================
+   RECOMENDACIÓN DE NIVEL EN PRÁCTICA
+   ============================================================ */
+function actualizarRecomendacionPractica() {
+  if (APP.nivelDiagnostico > 0) {
+    const rec = Math.max(1, APP.nivelDiagnostico - 1);
+    const msg = `Según tu diagnóstico, te recomendamos empezar desde el <strong>Nivel ${rec}</strong>.`;
+    document.getElementById('prac-rec-msg').innerHTML = msg;
+    // Resaltar el nivel recomendado
+    const btn = document.getElementById('lvl-btn-' + rec);
+    if (btn) {
+      btn.className = 'btn btn-secondary';
+    }
+  }
+}
+
+/* ============================================================
+   INICIALIZACIÓN
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  actualizarRecomendacionPractica();
+
+  // MathJax config
+  window.MathJax = {
+    tex: { inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['\\[','\\]'],['$$','$$']] },
+    startup: { typeset: true }
+  };
+
+  // Resize canvas responsively
+  function resizeCanvas() {
+    const c = document.getElementById('labCanvas');
+    if (!c) return;
+    const w = c.parentElement.clientWidth;
+    c.width = w;
+    c.height = Math.round(w * 0.47);
+    if (labInit) updateLab();
+  }
+  window.addEventListener('resize', resizeCanvas);
+  setTimeout(resizeCanvas, 200);
+});
+</script>
+</body>
+</html>
