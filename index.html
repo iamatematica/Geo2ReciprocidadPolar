@@ -447,6 +447,22 @@ main { padding-top: 94px; }
 .opt-tag-correct  { background: rgba(86,201,141,0.2);  color: var(--success); }
 .opt-tag-incorrect { background: rgba(224,108,117,0.2); color: var(--error); }
 .opt-tag-revealed { background: rgba(86,201,141,0.15); color: var(--success); }
+.pred-btn {
+  width: 100%;
+  text-align: left;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius2);
+  font-size: 0.88rem;
+  color: var(--text);
+  background: var(--bg3);
+  border: 1.5px solid var(--border2);
+  transition: all var(--transition);
+  display: block;
+  line-height: 1.5;
+}
+.pred-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent2); background: rgba(78,168,222,0.06); }
+.pred-btn.elegida { border-color: var(--accent); background: rgba(78,168,222,0.12); color: var(--accent2); font-weight: 600; }
+.pred-btn:disabled { cursor: default; opacity: 0.85; }
 .option-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
 .feedback-box {
@@ -975,7 +991,7 @@ input[type=range] {
   <div class="section-header">
     <span class="section-number">01 / Diagnóstico</span>
     <h2 class="title-lg">¿Qué sabés antes de empezar?</h2>
-    <p class="lead">Estas preguntas no tienen nota. Ayudan a conocer tu punto de partida para que la experiencia se adapte a vos.</p>
+    <p class="lead">Estas preguntas no tienen nota. Ayudan a conocer tu punto de partida y a orientarte sobre qué nivel de práctica conviene comenzar.</p>
   </div>
 
   <div id="diag-container">
@@ -1318,11 +1334,20 @@ input[type=range] {
         <div class="step-row">
           <div class="step-num">6</div>
           <div class="step-content">
-            <strong>Conclusión</strong>
+            <strong>Conclusión (caso no degenerado)</strong>
             <p>Como \(A\) pertenece a la recta \(AB' = b\), queda demostrado:</p>
             <div class="formula-block" style="border:1.5px solid var(--gold); background:rgba(226,184,102,0.06);">
               \[ B \in a \Longrightarrow A \in b. \quad \blacksquare \]
             </div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">7</div>
+          <div class="step-content">
+            <strong>El caso particular \(B = A'\)</strong>
+            <p>La demostración anterior usa la semejanza \(\triangle OB'A \sim \triangle OA'B\), que requiere que \(A\), \(B\) y \(O\) no estén alineados, es decir \(B \neq A'\). Pero el caso \(B = A'\) también cumple el teorema, y se verifica de forma directa:</p>
+            <p>Si \(B = A'\), entonces su inverso es \(B' = A\) (porque el inverso del inverso es el punto original). La polar de \(B\) es la perpendicular a \(OB\) por \(B' = A\), de modo que \(A \in b\) de manera inmediata. El teorema se cumple sin necesidad de la semejanza.</p>
+            <p style="color:var(--text3); font-size:0.85rem;">Por eso la condición \(B \neq A'\) no es una restricción del resultado, sino solo del método de demostración por semejanza: el caso restante se cubre por verificación directa.</p>
           </div>
         </div>
       </div>
@@ -1346,7 +1371,7 @@ input[type=range] {
         <div class="def-box mt-2">
           <div class="def-label">Definición — Rectas conjugadas</div>
           <p class="def-text">
-            Dos rectas \(a\) y \(b\) son <strong>conjugadas</strong> si el polo de cada una pertenece a la polar de la otra: \(B \in a \;\Leftrightarrow\; A \in b\).
+            Dos rectas \(a\) y \(b\), con polos \(A\) y \(B\), son <strong>conjugadas</strong> si el polo de cada una pertenece a la otra recta: \(A \in b \;\Leftrightarrow\; B \in a\).
           </p>
         </div>
 
@@ -1461,13 +1486,13 @@ input[type=range] {
           <!-- Tarjeta 6 -->
           <div class="card" style="background:var(--bg2);">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
-              <span style="font-size:0.78rem; font-weight:700; color:var(--accent2); text-transform:uppercase; letter-spacing:0.08em;">Lugar geométrico</span>
+              <span style="font-size:0.78rem; font-weight:700; color:var(--accent2); text-transform:uppercase; letter-spacing:0.08em;">Puntos en una recta</span>
               <span style="color:var(--text3);">⟷</span>
-              <span style="font-size:0.78rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:0.08em;">Envoltura</span>
+              <span style="font-size:0.78rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:0.08em;">Haz concurrente</span>
             </div>
             <p style="font-size:0.82rem; color:var(--text2); line-height:1.7;">
-              <strong style="color:var(--accent2);">Original:</strong> la polar de \(A\) es el lugar geométrico de los polos de las rectas que pasan por \(A\).<br>
-              <strong style="color:var(--gold);">Dual:</strong> el polo de \(a\) es la envoltura de las polares de los puntos situados en \(a\).
+              <strong style="color:var(--accent2);">Original:</strong> si los puntos \(P\) recorren una recta \(a\), todas sus polares pasan por un mismo punto.<br>
+              <strong style="color:var(--gold);">Dual:</strong> las polares de los puntos de \(a\) forman un haz de rectas concurrentes en el polo de \(a\).
             </p>
           </div>
 
@@ -1538,15 +1563,24 @@ input[type=range] {
   <div class="section-header">
     <span class="section-number">04 / Laboratorio</span>
     <h2 class="title-lg">Explorá la reciprocidad en forma dinámica</h2>
-    <p class="lead">Mové el punto \(P\) arrastrando el círculo rojo. Observá cómo cambia la polar.</p>
+    <p class="lead">Mové el punto \(P\) usando los controles deslizantes. Observá cómo cambia la polar.</p>
   </div>
 
-  <div class="card card-accent mb-3">
-    <strong style="color:var(--accent2);">Antes de explorar, pensá:</strong>
+  <div class="card card-accent mb-3" id="prediccion-box">
+    <strong style="color:var(--accent2);">🔮 Antes de explorar, predecí:</strong>
     <p style="font-size:0.9rem; color:var(--text2); margin-top:0.5rem; line-height:1.7;">
-      ¿Qué creés que le pasa a la polar \(p\) cuando movés \(P\) hacia el centro? ¿Se acerca al círculo o se aleja? Guardá esa predicción en tu cabeza y verificala experimentando.
+      ¿Qué creés que le pasa a la polar \(p\) cuando movés \(P\) hacia el centro \(O\)?
     </p>
+    <div id="prediccion-opciones" style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.8rem;">
+      <button class="pred-btn" onclick="elegirPrediccion('A', this)">A) La polar se acerca al círculo.</button>
+      <button class="pred-btn" onclick="elegirPrediccion('B', this)">B) La polar se aleja cada vez más.</button>
+      <button class="pred-btn" onclick="elegirPrediccion('C', this)">C) La polar no se mueve.</button>
+      <button class="pred-btn" onclick="elegirPrediccion('D', this)">D) La polar atraviesa el centro.</button>
+    </div>
+    <div id="prediccion-feedback" class="hidden" style="margin-top:0.85rem; padding:0.8rem 1rem; border-radius:10px; background:rgba(118,201,245,0.08); border:1px solid rgba(78,168,222,0.2); font-size:0.88rem; color:var(--text2); line-height:1.7;"></div>
   </div>
+
+  <div id="prediccion-comparar" class="hidden card card-gold mb-3" style="font-size:0.9rem; line-height:1.7;"></div>
 
   <div class="lab-canvas-wrap mb-3">
     <canvas id="labCanvas" width="880" height="420"></canvas>
@@ -2352,6 +2386,50 @@ let labInit = false;
 let labCanvas, labCtx;
 const LAB = { r: 100, px: 50, py: 30 };
 
+// --- Predicción del laboratorio (predecir → observar → explicar) ---
+let prediccionElegida = null;
+let yaExploro = false;
+
+function elegirPrediccion(opcion, btn) {
+  prediccionElegida = opcion;
+  // Marcar la elegida y deshabilitar todas (sin revelar si es correcta)
+  document.querySelectorAll('#prediccion-opciones .pred-btn').forEach(b => {
+    b.classList.remove('elegida');
+    b.disabled = true;
+  });
+  btn.classList.add('elegida');
+
+  const fb = document.getElementById('prediccion-feedback');
+  fb.classList.remove('hidden');
+  fb.innerHTML = '✓ Registramos tu predicción (<strong>' + opcion + '</strong>). Ahora movés el punto \\(P\\) hacia el centro con los controles y comprobás vos mismo qué sucede.';
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([fb]);
+  saveState();
+}
+
+function mostrarComparacionPrediccion() {
+  // Se llama cuando el alumno realmente exploró (movió P cerca del centro)
+  if (prediccionElegida === null || yaExploro) return;
+  yaExploro = true;
+
+  const correcta = 'B'; // La polar se aleja cada vez más cuando P → O
+  const box = document.getElementById('prediccion-comparar');
+  if (!box) return;
+  box.classList.remove('hidden');
+
+  const acerto = prediccionElegida === correcta;
+  let txt;
+  if (acerto) {
+    txt = '<strong style="color:var(--gold2);">🎯 Tu predicción fue ' + prediccionElegida + ', y es correcta.</strong><br>' +
+          'Cuando \\(P\\) se acerca al centro \\(O\\), su inverso \\(P\\,\'\\) se aleja indefinidamente (porque \\(OP \\cdot OP\\,\' = r^2\\)), y la polar \\(p\\) —perpendicular a \\(OP\\) por \\(P\\,\'\\)— se aleja cada vez más del círculo. En el límite, cuando \\(P \\to O\\), la polar se va al infinito.';
+  } else {
+    txt = '<strong style="color:var(--gold2);">Tu predicción fue ' + prediccionElegida + '. Comparala con lo observado.</strong><br>' +
+          'Lo que ocurre es que la polar <strong>se aleja cada vez más</strong> (opción B). Cuando \\(P\\) se acerca al centro, su inverso \\(P\\,\'\\) se aleja indefinidamente (porque \\(OP \\cdot OP\\,\' = r^2\\)), y la polar \\(p\\) se aleja con él. ¿Coincide con lo que viste al mover el punto?';
+  }
+  box.innerHTML = txt;
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([box]);
+  saveState();
+}
+
 function initLab() {
   if (!labCanvas) {
     labCanvas = document.getElementById('labCanvas');
@@ -2380,6 +2458,11 @@ function updateLab() {
   document.getElementById('lab-inv').textContent = op > 0.01 ? `${r2.toFixed(0)} = r²` : '—';
   const rel = op < r ? 'Interior a C' : op > r ? 'Exterior a C' : 'Sobre C';
   document.getElementById('lab-rel').textContent = rel;
+
+  // Predecir → observar → explicar: si el alumno acercó P bien al centro, mostrar la comparación
+  if (prediccionElegida !== null && !yaExploro && op < r * 0.35) {
+    mostrarComparacionPrediccion();
+  }
 }
 
 function drawLab(r, px, py) {
