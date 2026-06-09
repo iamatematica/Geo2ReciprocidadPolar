@@ -1770,7 +1770,29 @@ input[type=range] {
       <div class="subtitle mb-1">Resultado de la autoevaluación</div>
       <div id="eval-puntaje" style="font-size:2rem; font-weight:700; color:var(--accent2); margin-bottom:0.5rem;"></div>
       <div id="eval-nivel-badge" style="margin-bottom:1rem;"></div>
-      <p id="eval-mensaje" class="lead" style="font-size:0.92rem; max-width:600px; margin:0 auto 1.5rem;"></p>
+      <p id="eval-mensaje" class="lead" style="font-size:0.92rem; max-width:600px; margin:0 auto 0.5rem;"></p>
+    </div>
+  </div>
+
+  <!-- Preguntas abiertas conceptuales (aparecen al terminar la evaluación) -->
+  <div id="eval-abiertas" class="hidden mt-4 fade-in">
+    <div class="deco-sep"></div>
+    <div class="text-center mb-3">
+      <span class="subtitle">✍️ Para pensar y escribir</span>
+      <p class="lead" style="font-size:0.88rem; max-width:600px; margin:0.5rem auto 0;">Estas dos preguntas no se autocorrigen: son para que expreses tu comprensión con tus propias palabras. Quedarán registradas en tu informe final.</p>
+    </div>
+    <div class="card mb-3">
+      <label class="control-label" style="display:block; margin-bottom:0.6rem; color:var(--accent2);">1. Explicá con tus palabras qué significa que la reciprocidad polar sea una relación simétrica.</label>
+      <textarea id="abierta-1" rows="3" placeholder="Escribí tu respuesta…" oninput="guardarAbiertas()" style="width:100%; resize:vertical;"></textarea>
+    </div>
+    <div class="card mb-3">
+      <label class="control-label" style="display:block; margin-bottom:0.6rem; color:var(--accent2);">2. Explicá con tus palabras qué significa que dos puntos sean conjugados respecto de una circunferencia.</label>
+      <textarea id="abierta-2" rows="3" placeholder="Escribí tu respuesta…" oninput="guardarAbiertas()" style="width:100%; resize:vertical;"></textarea>
+    </div>
+
+    <!-- Botones de navegación: practicar el nivel recomendado o ir al cierre -->
+    <div class="flex-row mt-3" style="justify-content:center; gap:0.7rem;">
+      <button id="btn-practicar-recom" class="btn btn-secondary" onclick="irAPracticarRecomendado()"></button>
       <button class="btn btn-primary" onclick="showSection('s-metacognicion',null)">Ir al Cierre →</button>
     </div>
   </div>
@@ -1849,6 +1871,7 @@ const APP = {
   totalEval: 10,
   respuestasEval: Array(10).fill(null),
   metaRespuestas: ['','','',''],
+  respuestasAbiertas: ['',''],
   progreso: 0,  // 0-100
 };
 
@@ -2909,7 +2932,42 @@ function mostrarResultadoEval() {
   document.getElementById('eval-puntaje').textContent = `${evalCorrectas} / ${EVAL_QS.length}`;
   document.getElementById('eval-nivel-badge').innerHTML = `<span class="badge ${color}">${badge}</span>`;
   document.getElementById('eval-mensaje').textContent = msg;
+
+  // Mostrar las preguntas abiertas conceptuales
+  const abiertas = document.getElementById('eval-abiertas');
+  if (abiertas) {
+    abiertas.classList.remove('hidden');
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([abiertas]);
+  }
+
+  // Configurar el botón inteligente de práctica según el desempeño
+  const btnRec = document.getElementById('btn-practicar-recom');
+  if (btnRec) {
+    let nivelRec, label;
+    if (pct <= 40) { nivelRec = 1; label = 'Practicar Nivel 1'; }
+    else if (pct <= 60) { nivelRec = 2; label = 'Practicar Nivel 2'; }
+    else if (pct <= 80) { nivelRec = 3; label = 'Practicar Nivel 3'; }
+    else { nivelRec = 5; label = 'Intentar desafíos (Nivel 5)'; }
+    btnRec.textContent = '↻ ' + label;
+    btnRec.dataset.nivel = nivelRec;
+  }
+
   res.scrollIntoView({ behavior: 'smooth' });
+  saveState();
+}
+
+function irAPracticarRecomendado() {
+  const btnRec = document.getElementById('btn-practicar-recom');
+  const nivel = btnRec ? parseInt(btnRec.dataset.nivel) : 1;
+  showSection('s-practica', null);
+  // Seleccionar el nivel recomendado tras un breve instante para que la sección esté visible
+  setTimeout(() => { if (typeof selectLevel === 'function') selectLevel(nivel); }, 120);
+}
+
+function guardarAbiertas() {
+  const a1 = document.getElementById('abierta-1');
+  const a2 = document.getElementById('abierta-2');
+  APP.respuestasAbiertas = [a1 ? a1.value : '', a2 ? a2.value : ''];
   saveState();
 }
 
@@ -3324,17 +3382,28 @@ function descargarPDF() {
   const preg = ['¿Qué entendí mejor después de esta actividad?','¿Qué error puedo evitar de ahora en adelante?','¿Qué parte necesito seguir practicando?','¿Qué estrategia me resultó más útil?'];
   preg.forEach((p,i)=>{ const r=(APP.metaRespuestas[i]&&APP.metaRespuestas[i].trim())?APP.metaRespuestas[i]:'(Sin respuesta)'; bloqueSubt(p, r); });
 
-  // 5. SÍNTESIS
+  // 5. RESPUESTAS ABIERTAS (solo si el alumno escribió al menos una)
+  const ab = APP.respuestasAbiertas || ['',''];
+  const hayAbiertas = (ab[0] && ab[0].trim()) || (ab[1] && ab[1].trim());
+  let numSintesis = 5, numRecom = 6;
+  if (hayAbiertas) {
+    titulo('5.  Respuestas abiertas', C.blue);
+    bloqueSubt('Qué significa que la reciprocidad polar sea una relación simétrica', (ab[0] && ab[0].trim()) ? ab[0] : '(Sin respuesta)');
+    bloqueSubt('Qué significa que dos puntos sean conjugados respecto de una circunferencia', (ab[1] && ab[1].trim()) ? ab[1] : '(Sin respuesta)');
+    numSintesis = 6; numRecom = 7;
+  }
+
+  // SÍNTESIS
   let s = APP.sintesis;
   if (!s) { s = calcularSintesis(); }
-  titulo('5.  Síntesis final', C.gold);
+  titulo(numSintesis + '.  Síntesis final', C.gold);
   dato('Nivel alcanzado:', s.nivelAlcanzado||'—', C.gold); y+=4;
   bloqueSubt('Fortalezas detectadas', s.fortalezas||'—');
   bloqueSubt('Aspectos a reforzar', s.refuerzos||'—');
   bloqueSubt('Próximos pasos sugeridos', s.proxPasos||'—');
 
-  // 6. RECOMENDACIÓN FINAL
-  titulo('6.  Recomendación final', C.green);
+  // RECOMENDACIÓN FINAL
+  titulo(numRecom + '.  Recomendación final', C.green);
   let rF;
   const pctG = (s.pctGlobal !== undefined) ? s.pctGlobal : (APP.puntajeEval || 0);
   if (pctG>=80) rF='Excelente desempeño. Dominás los conceptos centrales de la reciprocidad polar: definiciones, el Teorema de Reciprocidad, la conjugación y el principio de dualidad. Podés afianzar lo aprendido practicando la dualización de enunciados y explorando nuevos casos en el laboratorio interactivo.';
@@ -3370,6 +3439,7 @@ function saveState() {
       respuestasEval: APP.respuestasEval,
       resultadosPractica: APP.resultadosPractica,
       metaRespuestas: APP.metaRespuestas,
+      respuestasAbiertas: APP.respuestasAbiertas,
       diagCorrectas: diagCorrectas,
       diagRespondidas: diagRespondidas,
       evalCorrectas: evalCorrectas,
